@@ -51,7 +51,9 @@ But : rendre le contrat explicite et contrôlé.
 - [x] `packages/sdk` : client typé dérivé du contrat, validation des entrées, contrôle des réponses en dev
 - [x] CI : `openapi.json` à jour + changements cassants (`oasdiff`, label `api-breaking` pour assumer)
 - [x] Garde : une PR front (`front/*` ou label `front`) qui touche `app/api`, `lib/`, `prisma/` ou le contrat échoue
-- [ ] Reste : 3 formes encore `z.unknown()` (`TODO(contract)`) ; les 3 server actions entrent au contrat en phase 2
+- [x] Les 3 server actions sont au contrat (phase 2) ; preuve d'exécution : 39 endpoints GET appelés sur une vraie base
+  Postgres répondent conformément au contrat (`apps/api/lib/contract/contract.db.test.ts`, opt-in `CONTRACT_DB_URL`)
+- [ ] Reste : 3 formes encore `z.unknown()` (`TODO(contract)`), faute de forme déclarée dans le back (JSON libres)
 
 **Terminé quand** : le SDK couvre 100 % des appels du front actuel et la CI bloque toute dérive.
 
@@ -59,10 +61,12 @@ But : rendre le contrat explicite et contrôlé.
 
 But : plus aucun accès direct front → base.
 
-- [ ] Créer les routes `/api` manquantes pour les données lues par les 19 pages
-- [ ] Exposer les 3 server actions en routes `/api` (la logique reste dans `lib/`)
-- [ ] Pages = fichier mince (chargement via SDK) + composant de vue à props pures
-- [ ] Règle ESLint : `@/lib/db`, `@/lib/access` interdits dans `app/(dashboard)`, `app/(auth)`, `components/`
+**Fait** (2026-11-03).
+
+- [x] 12 endpoints de vue `GET /api/views/*` : chaque page ou layout reçoit exactement ce qu'il affiche
+- [x] Les 3 server actions deviennent des routes (`lib/actions/`), appelées via le SDK ; plus aucun `'use server'`
+- [x] Pages = `loadView()` + rendu ; les redirections deviennent des données renvoyées par la vue
+- [x] Règle ESLint : base, accès, repositories, services, vues et actions interdits côté front (types autorisés)
 
 **Terminé quand** : la règle ESLint passe, les tests restent verts, aucun écran n'a changé visuellement.
 
@@ -70,10 +74,13 @@ But : plus aucun accès direct front → base.
 
 But : changer de couleurs, typos, logo sans toucher au code.
 
-- [ ] `packages/themes/<marque>.json` : couleurs, typographies, rayons, ombres, motion, logo
-- [ ] Génération en variables CSS (Style Dictionary) ; Tailwind ne lit plus que ces variables
-- [ ] Résolution de la marque par domaine (ou en-tête), côté middleware
-- [ ] Composants `components/ui` sans aucune couleur en dur
+**Fait** (2026-11-03) : 148 déclarations par marque identiques avant/après (CSS compilées comparées).
+
+- [x] `packages/themes/themes/<marque>.json` : toutes les variables CSS (site et dashboard), palette hex, palette Clerk
+- [x] Compilation en `themes.generated.css` (générateur maison, sans dépendance) ; plus aucune couleur de marque dans `globals.css`
+- [x] **Décision** : une marque par déploiement (`NEXT_PUBLIC_BRAND`), pas de résolution par requête : elle rendrait
+  toutes les pages dynamiques et coûterait le budget Lighthouse de la landing statique. Les domaines sont déclarés dans le thème.
+- [x] Widgets Clerk et page d'erreur sur le thème ; restent en dur : les logos (actifs de marque) et des ombres neutres
 
 **Terminé quand** : une marque de démonstration change entièrement de couleurs et de logo par un seul fichier JSON.
 
@@ -81,10 +88,15 @@ But : changer de couleurs, typos, logo sans toucher au code.
 
 But : textes et images éditables sans développeur.
 
-- [ ] Choix du CMS headless (recommandé : Payload, auto-hébergeable en TypeScript ; alternatives Strapi, Sanity)
-- [ ] Modèle de contenu : pages marketing, blog, textes d'interface, e-mails transactionnels, par marque et par langue
-- [ ] Migration des textes en dur ; textes d'interface en clés i18n
-- [ ] Revalidation à la publication (ISR / webhook du CMS)
+**Fait pour l'identité et la landing** (2026-11-03) : HTML de la landing identique à l'octet pour les 2 marques.
+
+- [ ] Choix du CMS headless (décision founder) : la couche `ContentSource` est prête, un adaptateur CMS la remplace
+  sans toucher aux composants ; aujourd'hui la source est un fichier JSON par document (modifier = commit + déploiement)
+- [x] Modèle de contenu zod + JSON Schema : `identity`, `navigation`, `landing`, `faq` (+ `auth` pour la carrosserie n°2)
+- [ ] Reste à modéliser : blog, pages légales, e-mails transactionnels
+- [x] Textes de la landing et identité de marque sortis du code
+- [ ] Textes du dashboard (~126 composants) en clés i18n : non fait, à mener avec la carrosserie n°2
+- [ ] Revalidation à la publication : dépend du CMS choisi
 
 **Terminé quand** : un rédacteur modifie la landing et un libellé du dashboard depuis le CMS, en ligne sans déploiement.
 
@@ -92,10 +104,13 @@ But : textes et images éditables sans développeur.
 
 But : deux déployables indépendants.
 
-- [ ] Monorepo : `apps/api` (châssis), `apps/front-phantera` (carrosserie n°1), `packages/{contract,sdk,core,ui,themes,config}`
-- [ ] `packages/core` : logique front partagée sans UI (hooks, état, validation)
-- [ ] Auth Clerk partagée entre domaines ; CORS et cookies configurés
-- [ ] Deux projets Vercel ; le front pointe sur l'URL de l'API
+**Fait** (2026-11-03) : 1 137 tests (même total qu'avant), 2 builds, les 2 apps vérifiées ensemble.
+
+- [x] Monorepo : `apps/api` (châssis), `apps/front` (carrosserie n°1), `packages/{contract,sdk,themes,content}`
+- [x] Modules partagés : le front résout `@/lib/*` dans son propre `lib/` puis dans celui du châssis (modules purs :
+  marque, types, formats) ; ESLint l'empêche d'atteindre les données. Un `packages/core` séparé reste possible plus tard.
+- [x] Même origine : le front relaie `/api/*` vers `API_URL` (rewrite) → cookies Clerk partagés, aucun CORS
+- [x] Un `vercel.json` par app ; CI en 2 jobs ; `DEPLOY.md` décrit les 2 projets (mise en ligne : à la fin)
 
 **Terminé quand** : on redéploie le front sans redéployer le back, et inversement.
 
@@ -113,9 +128,13 @@ But : le nouveau front, construit sur le châssis sans le toucher.
 
 ## Phase 7 : Usine à carrosseries (continu)
 
-- [ ] Gabarit `templates/new-skin` + skill Claude `new-skin` (thème + espace CMS + domaine en une commande)
-- [ ] Skill `new-endpoint` : contrat → SDK → implémentation → tests
-- [ ] Régression visuelle par marque en CI, tableau de bord des carrosseries déployées
+**Fait** (2026-11-03).
+
+- [x] `npm run brand:new <clé> "<Nom>" <domaine>` (testé de bout en bout) + skill `.claude/skills/new-brand` ; registres
+  générés depuis les données (`npm run brands:sync`)
+- [x] Skills `new-endpoint` (contrat d'abord) et `new-view` (données de page par l'API)
+- [x] Régression visuelle par marque sans navigateur : HTML de la landing figé par marque (`apps/front/lib/visual`)
+- [x] `npm run bodies` : châssis, carrosseries et marques d'un coup d'œil
 
 **Terminé quand** : une nouvelle marque est en ligne en moins d'une journée.
 

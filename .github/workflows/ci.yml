@@ -87,3 +87,41 @@ jobs:
 
       - name: Lint
         run: npx eslint app components lib hooks middleware.ts
+
+  front-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/front-v2
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        working-directory: .
+        run: npm ci --no-audit --no-fund
+
+      - name: Prisma client
+        working-directory: apps/api
+        run: npx prisma generate
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx eslint app components lib
+
+      # Body n°2 must build for every brand it can wear.
+      - name: Build (every brand)
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: |
+          for brand in $(node -e "for (const f of require('fs').readdirSync('../../packages/themes/themes')) if (f.endsWith('.json')) console.log(f.slice(0, -5))"); do
+            echo "::group::$brand"; NEXT_PUBLIC_BRAND=$brand npx next build; echo "::endgroup::"
+          done

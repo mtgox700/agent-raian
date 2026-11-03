@@ -22,11 +22,13 @@ import { stripeEndpoints } from './endpoints/stripe'
 import { teamEndpoints } from './endpoints/team'
 import { touchesEndpoints } from './endpoints/touches'
 import { workspaceEndpoints } from './endpoints/workspace'
+import { viewsEndpoints } from './endpoints/views'
 
 export * from './define'
+import type { EndpointDef } from './define'
 export * from './schemas'
 
-export const endpoints = [
+export const endpoints: readonly EndpointDef[] = [
   ...activityEndpoints,
   ...aiEndpoints,
   ...analystEndpoints,
@@ -43,10 +45,33 @@ export const endpoints = [
   ...teamEndpoints,
   ...touchesEndpoints,
   ...workspaceEndpoints,
-] as const
+  ...viewsEndpoints,
+]
 
-export type Endpoints = typeof endpoints
-export type EndpointId = Endpoints[number]['id']
+/** Maps a list of endpoints to `{ [id]: definition }` (per domain: keeps unions small for the compiler). */
+type ById<T extends readonly EndpointDef[]> = { [E in T[number] as E['id']]: E }
+
+/** Every endpoint by id, with its exact types: what the SDK is typed from. */
+export type EndpointMap =
+  ById<typeof activityEndpoints>
+  & ById<typeof aiEndpoints>
+  & ById<typeof analystEndpoints>
+  & ById<typeof authEndpoints>
+  & ById<typeof campaignsEndpoints>
+  & ById<typeof channelsEndpoints>
+  & ById<typeof inboxEndpoints>
+  & ById<typeof insightsEndpoints>
+  & ById<typeof leadsEndpoints>
+  & ById<typeof mailboxEndpoints>
+  & ById<typeof notificationsEndpoints>
+  & ById<typeof securityEndpoints>
+  & ById<typeof stripeEndpoints>
+  & ById<typeof teamEndpoints>
+  & ById<typeof touchesEndpoints>
+  & ById<typeof workspaceEndpoints>
+  & ById<typeof viewsEndpoints>
+
+export type EndpointId = keyof EndpointMap & string
 
 /** Route prefixes that exist in the back but are not part of the front contract. */
 export const INFRA_ROUTES = [

@@ -15,14 +15,8 @@ import { History, Megaphone, MessageSquare, Bell, Filter, ChevronDown } from 'lu
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
-export interface HistoryEvent {
-  id: string
-  kind: 'campaign' | 'reply' | 'system'
-  title: string
-  body: string | null
-  href?: string
-  createdAt: string // ISO
-}
+export type { HistoryEvent } from '@/lib/views/history'
+import type { HistoryEvent } from '@/lib/views/history'
 
 const KIND_META: Record<HistoryEvent['kind'], { label: string; icon: typeof Bell; text: string; dot: string }> = {
   campaign: { label: 'Campagnes', icon: Megaphone,     text: 'text-cyan',  dot: 'bg-cyan' },

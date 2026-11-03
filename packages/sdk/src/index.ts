@@ -11,25 +11,21 @@
  */
 
 import { z } from 'zod'
-import { endpoints, type EndpointDef, type EndpointId, type Endpoints, type ErrorBody } from '@phantera/contract'
+import { endpoints, type EndpointDef, type EndpointId, type EndpointMap, type ErrorBody } from '@phantera/contract'
 
-type ById<I extends EndpointId> = Extract<Endpoints[number], { id: I }>
+type ById<I extends EndpointId> = EndpointMap[I]
 
-type Part<K extends string, S> = S extends z.ZodNever | undefined
-  ? { [P in K]?: never }
-  : S extends z.ZodType
-    ? (undefined extends z.input<S> ? { [P in K]?: z.input<S> } : { [P in K]: z.input<S> })
-    : { [P in K]?: never }
+type Part<K extends string, D, Key extends string> = D extends { [P in Key]: infer S extends z.ZodType }
+  ? (undefined extends z.input<S> ? { [P in K]?: z.input<S> } : { [P in K]: z.input<S> })
+  : { [P in K]?: never }
 
 /** What a call needs: path params, query string and body, each only when the endpoint has one. */
-export type CallInput<I extends EndpointId> = ById<I> extends EndpointDef<infer P, infer Q, infer B, z.ZodType>
-  ? Part<'params', P> & Part<'query', Q> & Part<'body', B>
-  : never
+export type CallInput<I extends EndpointId> = Part<'params', ById<I>, 'params'> & Part<'query', ById<I>, 'query'> & Part<'body', ById<I>, 'body'>
 
 /** What a successful call returns: parsed JSON, or the raw Response for streams, files and redirects. */
 export type CallOutput<I extends EndpointId> = ById<I> extends { responseKind: 'stream' | 'file' | 'redirect' }
   ? Response
-  : ById<I> extends EndpointDef<z.ZodType, z.ZodType, z.ZodType, infer R> ? z.output<R> : never
+  : ById<I> extends { response: infer R extends z.ZodType } ? z.output<R> : never
 
 export class ApiError extends Error {
   constructor(
@@ -56,7 +52,7 @@ export interface ClientOptions {
   onContractMismatch?: (id: EndpointId, issues: z.core.$ZodIssue[]) => void
 }
 
-const byId = new Map<string, EndpointDef>((endpoints as readonly EndpointDef[]).map((e) => [e.id, e]))
+const byId = new Map<string, EndpointDef>(endpoints.map((e) => [e.id, e]))
 
 function definition(id: string): EndpointDef {
   const def = byId.get(id)

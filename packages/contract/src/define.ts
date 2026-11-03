@@ -43,12 +43,7 @@ export interface EndpointDef<
   tags?: string[]
 }
 
-export function endpoint<
-  P extends z.ZodType = z.ZodNever,
-  Q extends z.ZodType = z.ZodNever,
-  B extends z.ZodType = z.ZodNever,
-  R extends z.ZodType = z.ZodType,
->(def: EndpointDef<P, Q, B, R>): EndpointDef<P, Q, B, R> {
+export function endpoint<const D extends EndpointDef>(def: D): D {
   return def
 }
 

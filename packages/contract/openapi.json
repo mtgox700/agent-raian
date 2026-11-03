@@ -833,7 +833,10 @@
                     "type": "string"
                   },
                   "conversationId": {
-                    "type": "string"
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 },
                 "required": [

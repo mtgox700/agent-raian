@@ -30,7 +30,8 @@ export const analystEndpoints = [
     summary: 'One question to the Analyst, answered as Server-Sent Events (progress, then answer or failure).',
     auth: 'session',
     // Handler trims the question: 3..MAX_QUESTION_CHARS (lib/analyst/run.ts); empty conversationId = new conversation.
-    body: z.object({ question: z.string(), conversationId: z.string().optional() }),
+    // null or empty = new conversation (lib/analyst/http.ts).
+    body: z.object({ question: z.string(), conversationId: z.string().nullable().optional() }),
     // Events: progress {type:'step',step}|{type:'tool',name}; answer {conversationId,messageId,status,text,evidence[{ref,tool,data}],quota}; failure {reason,message,quota}.
     response: z.string(),
     responseKind: 'stream',

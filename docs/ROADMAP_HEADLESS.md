@@ -118,11 +118,19 @@ But : deux déployables indépendants.
 
 But : le nouveau front, construit sur le châssis sans le toucher.
 
-- [ ] Direction visuelle et storyboard (Katana Forge : `/forge`)
-- [ ] `apps/front-v2` sur le même SDK, les mêmes thèmes, le même CMS
-- [ ] Écran par écran : landing → auth → dashboard (leads, campagnes, inbox, analytics, réglages, analyst, historique, à envoyer)
-- [ ] Budgets : Lighthouse ≥ 95 performance, 100 accessibilité ; tests visuels par carrosserie
-- [ ] Bascule de domaine quand tous les écrans sont prêts ; retrait de l'ancien front
+**Construite** (2026-11-03), pas encore en ligne : `apps/front-v2`, 15 écrans, builds verts pour les 2 marques.
+
+- [x] Direction visuelle Katana Forge « Arrêt net » : `apps/front-v2/DESIGN.md` (principes, tokens, mouvement, budgets)
+- [x] `apps/front-v2` sur le même châssis, SDK, thèmes et contenus ; aucun commit dans `apps/api` pour la refonte
+  (seul ajustement de contrat : `analyst.ask` accepte `conversationId: null`, comme le back le faisait déjà)
+- [x] Landing, connexion, inscription, onboarding, invitation, et tout le dashboard : accueil, leads, leads chauds,
+  à envoyer, campagnes (liste, assistant, détail), boîte de réception, analytics, analyste, historique, réglages, facturation
+- [ ] Pages publiques secondaires de la v1 non portées : à propos, blog, alternatives, pilote, mentions légales
+- [ ] Événements PostHog non branchés dans la v2 (aucun envoi d'analytics produit)
+- [ ] Textes du dashboard v2 dans `lib/copy/*` (repris mot pour mot de la v1), pas encore en documents de contenu
+- [ ] Budgets Lighthouse **non mesurés** : le navigateur du conteneur ne joint pas localhost. Landing vue en rendu hors
+  ligne (`scripts/render-static.cjs`) pour les 2 marques ; écrans connectés jamais vus avec une vraie session Clerk
+- [ ] Bascule de domaine et retrait de la v1 : à la mise en production (décision founder après revue visuelle)
 
 **Terminé quand** : le nouveau front est en production et le back n'a reçu aucun commit de la refonte.
 

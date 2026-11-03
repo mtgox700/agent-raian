@@ -13,8 +13,8 @@ import { endpoints, INFRA_ROUTES, type EndpointDef } from '@phantera/contract'
 import { buildOpenApi } from '@phantera/contract/openapi'
 
 const WEB = join(__dirname, '..', '..')
-/** The front of brand n°1 (apps/front): every /api URL it uses must be in the contract. */
-const FRONT = join(WEB, '..', 'front')
+/** Every body (front app): every /api URL it uses must be in the contract. */
+const FRONTS = ['front', 'front-v2'].map((app) => join(WEB, '..', app)).filter((dir) => existsSync(dir))
 const ALL = endpoints as readonly EndpointDef[]
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const
 
@@ -67,12 +67,8 @@ describe('API contract', () => {
   })
 
   it('covers every /api URL the front uses', () => {
-    const frontFiles = [
-      ...walk(join(FRONT, 'app'), (f) => /\.(ts|tsx)$/.test(f)),
-      ...walk(join(FRONT, 'components'), (f) => /\.(ts|tsx)$/.test(f)),
-      ...walk(join(FRONT, 'hooks'), (f) => /\.(ts|tsx)$/.test(f)),
-      ...walk(join(FRONT, 'lib'), (f) => /\.(ts|tsx)$/.test(f)),
-    ].filter((f) => !/\.(test|spec)\.tsx?$/.test(f))
+    const frontFiles = FRONTS.flatMap((front) => ['app', 'components', 'hooks', 'lib']
+      .flatMap((dir) => walk(join(front, dir), (f) => /\.(ts|tsx)$/.test(f)))).filter((f) => !/\.(test|spec)\.tsx?$/.test(f))
 
     const patterns = ALL.map((e) => pathPattern(e.path))
     const unknown: string[] = []
@@ -83,7 +79,7 @@ describe('API contract', () => {
         const url = m[1].replace(/\$\{[^}]*\}/g, 'x').replace(/\$\{.*$/, '').replace(/\/$/, '')
         // '/api' alone is a prefix (robots.txt rule), not a call
         if (url === '/api' || isInfra(url) || patterns.some((p) => p.test(url))) continue
-        unknown.push(`${relative(FRONT, file)}: ${m[1]}`)
+        unknown.push(`${relative(join(WEB, '..'), file)}: ${m[1]}`)
       }
     }
     expect(unknown).toEqual([])

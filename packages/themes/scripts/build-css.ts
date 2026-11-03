@@ -11,20 +11,26 @@ import { z } from 'zod'
 import { buildCss } from '../src/css'
 import { Theme } from '../src/index'
 
-const out = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'apps', 'front', 'app', 'themes.generated.css')
+// Every front app gets the same compiled themes (the paint is shared by all bodies).
+const apps = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'apps')
+const outs = ['front', 'front-v2'].map((app) => join(apps, app, 'app', 'themes.generated.css'))
 const next = buildCss()
 
 if (process.argv.includes('--check')) {
-  let current = ''
-  try { current = readFileSync(out, 'utf8') } catch { /* missing = out of date */ }
-  if (current !== next) {
-    console.error('themes.generated.css is out of date: run `npm run build --workspace=@phantera/themes`.')
-    process.exit(1)
+  for (const out of outs) {
+    let current = ''
+    try { current = readFileSync(out, 'utf8') } catch { /* missing = out of date */ }
+    if (current !== next) {
+      console.error(`${out} is out of date: run \`npm run themes\`.`)
+      process.exit(1)
+    }
   }
-  console.log('themes.generated.css is up to date.')
+  console.log('themes.generated.css is up to date in every front.')
 } else {
-  writeFileSync(out, next)
-  console.log(`Wrote ${out}`)
+  for (const out of outs) {
+    writeFileSync(out, next)
+    console.log(`Wrote ${out}`)
+  }
 }
 
 // JSON Schema for editors ($schema in each theme file).

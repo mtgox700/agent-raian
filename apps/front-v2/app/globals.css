@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Brand colours come from app/themes.generated.css (packages/themes). */
+html { background: var(--bg-base); color: var(--text-base); }
+body { min-height: 100dvh; }

@@ -28,11 +28,14 @@ const config: Config = {
         ai:      rgb('--c-ai'),
       },
       fontFamily: {
-        display: ['var(--font-syne)', 'system-ui', 'sans-serif'],
+        // --font-display is Syne, or Playfair under data-brand='sparx' (globals.css).
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
         sans:    ['var(--font-inter)', 'system-ui', 'sans-serif'],
         mono:    ['var(--font-mono)', 'ui-monospace', 'monospace'],
         serif:   ['var(--font-serif)', 'Georgia', 'serif'],
       },
+      maxWidth: { page: '76rem', prose: '38rem' },
+      transitionTimingFunction: { signal: 'var(--ease-signal)' },
     },
   },
   plugins: [],

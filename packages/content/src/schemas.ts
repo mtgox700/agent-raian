@@ -52,6 +52,8 @@ export const Navigation = z.object({
   $schema: z.string().optional(),
   /** aria-label of the logo link, e.g. 'Phantera, accueil'. */
   homeAriaLabel: z.string().min(1),
+  /** First focusable link of every page, jumps to <main>. */
+  skipLink: z.string().min(1),
   navbar: z.object({
     ariaLabel: z.string().min(1),
     menuAriaLabel: z.string().min(1),
@@ -156,12 +158,23 @@ export const Faq = z.object({
 })
 export type Faq = z.infer<typeof Faq>
 
+/** The panel beside the sign-in and sign-up forms (the forms themselves are Clerk's, localised by Clerk). */
+export const Auth = z.object({
+  $schema: z.string().optional(),
+  /** One line under the headline: what the visitor is signing in to. */
+  lead: z.string().min(1),
+  /** Product facts only (Reality Lock: no figure, no customer). */
+  facts: z.array(z.string().min(1)).min(1),
+})
+export type Auth = z.infer<typeof Auth>
+
 /** Every document type, by name. Add one here, then a JSON file per brand/locale. */
 export const documents = {
   identity: Identity,
   navigation: Navigation,
   landing: Landing,
   faq: Faq,
+  auth: Auth,
 } as const
 export type DocumentName = keyof typeof documents
 export type Document<N extends DocumentName> = z.infer<(typeof documents)[N]>

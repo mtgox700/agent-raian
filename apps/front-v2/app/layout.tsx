@@ -3,6 +3,7 @@ import localFont from 'next/font/local'
 import './globals.css'
 import './themes.generated.css'
 import { brand } from '@/lib/brand'
+import { navigation } from '@/lib/content'
 
 const syne = localFont({
   src: [
@@ -78,7 +79,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-brand={brand.key}
       className={[syne.variable, inter.variable, mono.variable, playfair.variable].join(' ')}
     >
-      <body className="font-sans antialiased">{children}</body>
+      <body className="bg-canvas font-sans text-ink antialiased">
+        <a href="#main-content" className="skip-link">{navigation.skipLink}</a>
+        {children}
+      </body>
     </html>
   )
 }

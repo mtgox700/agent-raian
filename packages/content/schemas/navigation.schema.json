@@ -9,6 +9,10 @@
       "type": "string",
       "minLength": 1
     },
+    "skipLink": {
+      "type": "string",
+      "minLength": 1
+    },
     "navbar": {
       "type": "object",
       "properties": {
@@ -119,6 +123,7 @@
   },
   "required": [
     "homeAriaLabel",
+    "skipLink",
     "navbar",
     "footer"
   ],

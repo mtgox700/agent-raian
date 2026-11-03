@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Brand colours come from app/themes.generated.css (packages/themes). */
-html { background: var(--bg-base); color: var(--text-base); }
-body { min-height: 100dvh; }
+/*
+ * Body n°2 foundation. Colours come ONLY from app/themes.generated.css
+ * (packages/themes) through the Tailwind names (canvas, ink, accent...).
+ * Motion rules: DESIGN.md, section "Motion".
+ */
+
+:root { --font-display: var(--font-syne); }
+[data-brand='sparx'] { --font-display: var(--font-serif); }
+
+@layer base {
+  html { background: rgb(var(--c-void)); color: rgb(var(--c-white)); scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  body { min-height: 100dvh; }
+  ::selection { background: rgb(var(--c-cyan) / 0.25); }
+  :focus-visible { outline: 2px solid rgb(var(--c-cyan)); outline-offset: 3px; border-radius: 2px; }
+  summary { list-style: none; cursor: pointer; }
+  summary::-webkit-details-marker { display: none; }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute; left: 1rem; top: -4rem; z-index: 100;
+    padding: 0.75rem 1rem; border-radius: 0.375rem;
+    background: rgb(var(--c-cyan)); color: rgb(var(--c-void));
+    transition: top 150ms;
+  }
+  .skip-link:focus { top: 1rem; }
+
+  /* ── Signature: the sequence that stops short (components/ui/stop-short) ── */
+  .stop-short-stroke { transform-origin: left center; }
+  .stop-short-ring { opacity: 0; }
+
+  /* ── Pricing: monthly / annual without JavaScript ── */
+  .pricing .price-monthly { display: none; }
+  .pricing:has(#cycle-monthly:checked) .price-monthly { display: block; }
+  .pricing:has(#cycle-monthly:checked) .price-annual { display: none; }
+
+  /* ── FAQ: the plus turns into a minus when open ── */
+  details[open] > summary .faq-plus-v { transform: scaleY(0); }
+}
+
+/* Motion plays once, on load, only for people who have not asked otherwise. */
+@media (prefers-reduced-motion: no-preference) {
+  .stop-short[data-animate] .stop-short-stroke {
+    animation: stroke-draw 900ms var(--ease-signal) both;
+    animation-delay: calc(var(--i, 0) * 180ms + 200ms);
+  }
+  .stop-short[data-animate] .stop-short-dot {
+    animation: dot-land 360ms var(--ease-signal) 980ms both;
+  }
+  .stop-short[data-animate] .stop-short-ring {
+    animation: dot-ring 1400ms ease-out 1240ms both;
+  }
+  .rise { animation: rise 700ms var(--ease-signal) both; animation-delay: calc(var(--i, 0) * 90ms); }
+}
+
+@keyframes stroke-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes dot-land { from { transform: scale(0); } 70% { transform: scale(1.25); } to { transform: scale(1); } }
+@keyframes dot-ring { from { opacity: 0.7; transform: scale(1); } to { opacity: 0; transform: scale(3.2); } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }

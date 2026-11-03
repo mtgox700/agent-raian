@@ -1,6 +1,7 @@
 {
   "$schema": "../../../schemas/navigation.schema.json",
   "homeAriaLabel": "Phantera, accueil",
+  "skipLink": "Aller au contenu principal",
   "navbar": {
     "ariaLabel": "Navigation principale",
     "menuAriaLabel": "Menu",

@@ -1,4 +1,4 @@
-/** Analyst shapes (apps/web/lib/analyst). */
+/** Analyst shapes (apps/api/lib/analyst). */
 
 import { z } from 'zod'
 import { Id, IsoDate } from '../define'

@@ -1,4 +1,4 @@
-/** Insight (alert) shapes (apps/web/lib/insights). */
+/** Insight (alert) shapes (apps/api/lib/insights). */
 
 import { z } from 'zod'
 import { Id, IsoDate } from '../define'

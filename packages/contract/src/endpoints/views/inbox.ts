@@ -6,7 +6,7 @@ import { endpoint, Id, IsoDate } from '../../define'
 export const ReplyClassification = z.enum(['POSITIVE', 'MEETING_REQUEST', 'NEGATIVE', 'NOT_INTERESTED', 'NEUTRAL'])
 export const ReplyFilter = z.enum(['all', 'positive', 'meeting', 'negative', 'unread'])
 
-/** `InboxReplyRow` (apps/web/lib/repositories/replies.repository.ts), date as ISO string. */
+/** `InboxReplyRow` (apps/api/lib/repositories/replies.repository.ts), date as ISO string. */
 export const InboxReply = z.object({
   id: Id,
   receivedAt: IsoDate,

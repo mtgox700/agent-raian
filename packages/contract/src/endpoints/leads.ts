@@ -240,7 +240,7 @@ export const leadsEndpoints = [
     response: z.object({
       success: z.literal(true),
       // Spread of the whole Prisma Lead row: known fields typed, the rest passes through.
-      // TODO(contract): enumerate every remaining Prisma Lead column (apps/web/prisma/schema.prisma).
+      // TODO(contract): enumerate every remaining Prisma Lead column (apps/api/prisma/schema.prisma).
       data: z.object({
         id: Id,
         workspaceId: z.string(),
@@ -287,7 +287,7 @@ export const leadsEndpoints = [
     path: '/api/leads/search/stream',
     summary: 'Full sourcing pipeline (Apollo, Hunter, AI scoring) streamed as SSE; each event is `data: <json>`.',
     auth: 'session',
-    // Mirror of apolloSearchSchema (apps/web/lib/types/lead.ts).
+    // Mirror of apolloSearchSchema (apps/api/lib/types/lead.ts).
     body: z.object({
       workspaceId: z.string().min(1),
       campaignId: z.string().optional(),

@@ -1,4 +1,4 @@
-/** View endpoint: the data of the Analytics page (/dashboard/analytics), mirror of apps/web/lib/analytics. */
+/** View endpoint: the data of the Analytics page (/dashboard/analytics), mirror of apps/api/lib/analytics. */
 
 import { z } from 'zod'
 import { endpoint, IsoDate } from '../../define'

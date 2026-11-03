@@ -1,4 +1,4 @@
-/** Team shapes (apps/web/lib/team/team.service.ts `listTeam`). */
+/** Team shapes (apps/api/lib/team/team.service.ts `listTeam`). */
 
 import { z } from 'zod'
 import { Id, IsoDate } from '../define'

@@ -1,4 +1,4 @@
-/** View endpoint of the Campaign detail page (apps/web/lib/views/campaign.ts). */
+/** View endpoint of the Campaign detail page (apps/api/lib/views/campaign.ts). */
 
 import { z } from 'zod'
 import { endpoint, Id, IsoDate } from '../../define'
@@ -6,7 +6,7 @@ import { StepStats } from '../../schemas/campaign'
 import { CompanySize } from '../../schemas/lead'
 import { Plan } from '../../schemas/analyst'
 
-/** `CampaignDetailData` (apps/web/lib/views/campaign.ts). */
+/** `CampaignDetailData` (apps/api/lib/views/campaign.ts). */
 export const CampaignDetail = z.object({
   id: Id,
   name: z.string(),
@@ -35,7 +35,7 @@ export const CampaignDetail = z.object({
   stoppedOnReplyCount: z.number(),
 })
 
-/** `LeadRow` of the campaign page (apps/web/lib/views/campaign.ts). */
+/** `LeadRow` of the campaign page (apps/api/lib/views/campaign.ts). */
 export const CampaignLeadRow = z.object({
   id: Id,
   firstName: z.string(),

@@ -1,6 +1,6 @@
 # 🎨 Phantera Design System
 
-> Single source of truth: `apps/web/lib/design/tokens.ts`
+> Single source of truth: `apps/front/lib/design/tokens.ts`
 > Live catalogue (dev only): http://localhost:3000/design-system
 
 ---
@@ -9,7 +9,7 @@
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│   apps/web/lib/design/tokens.ts                          │
+│   apps/front/lib/design/tokens.ts                          │
 │   ├─ palette  (raw colours, never used in components)    │
 │   ├─ color    (semantic mappings — what components use)  │
 │   ├─ spacing  fontSize  fontWeight  letterSpacing        │
@@ -154,7 +154,7 @@ easing.spring     damping 28, stiffness 340 → drawer slide-in
 Run this audit to find raw hex usage in components:
 
 ```bash
-cd apps/web
+cd apps/api
 grep -rohE "#[0-9a-fA-F]{3,8}" --include="*.tsx" components | sort | uniq -c | sort -rn
 ```
 

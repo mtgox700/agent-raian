@@ -1,10 +1,10 @@
-/** View endpoint of the Campaigns page (apps/web/lib/views/campaigns.ts). */
+/** View endpoint of the Campaigns page (apps/api/lib/views/campaigns.ts). */
 
 import { z } from 'zod'
 import { endpoint, Id, IsoDate } from '../../define'
 import { StepChannel } from '../../schemas/campaign'
 
-/** `Campaign` (apps/web/lib/types/dashboard.ts) as built by `campaignsView`. */
+/** `Campaign` (apps/api/lib/types/dashboard.ts) as built by `campaignsView`. */
 export const CampaignCard = z.object({
   id: Id,
   name: z.string(),

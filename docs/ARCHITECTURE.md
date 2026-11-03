@@ -184,7 +184,7 @@ USER intent (campaign launch)
 
 ## 🗄️ Data Model
 
-The schema lives in `apps/web/prisma/schema.prisma` (11 models, 30+ indexes). Core relationships:
+The schema lives in `apps/api/prisma/schema.prisma` (11 models, 30+ indexes). Core relationships:
 
 ```
                     ┌─────────┐

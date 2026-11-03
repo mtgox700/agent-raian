@@ -1,6 +1,6 @@
 # 🔍 Audit complet PhanteraTN : Rapport
 
-> Audit réalisé sur `apps/web` (Next.js 16 + Prisma + Clerk + Stripe + Resend).
+> Audit réalisé sur `apps/api` (Next.js 16 + Prisma + Clerk + Stripe + Resend).
 > Méthode : type-check, lint, tests, build + revue manuelle des chemins critiques
 > (auth, webhooks, quotas, pipeline IA, séquences email). 27 fichiers modifiés.
 

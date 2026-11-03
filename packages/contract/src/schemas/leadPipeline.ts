@@ -1,4 +1,4 @@
-/** Lead pipeline shapes: scoring, enrichment, hot leads, search stream (mirror of apps/web/lib/types/lead.ts). */
+/** Lead pipeline shapes: scoring, enrichment, hot leads, search stream (mirror of apps/api/lib/types/lead.ts). */
 
 import { z } from 'zod'
 import { Id, IsoDate } from '../define'
@@ -19,7 +19,7 @@ export const EmailEnrichResult = z.object({
   emailStatus: z.string(),
 })
 
-/** `HotLead` (apps/web/lib/repositories/leads.repository.ts). */
+/** `HotLead` (apps/api/lib/repositories/leads.repository.ts). */
 export const HotLead = z.object({
   id: Id,
   firstName: z.string(),

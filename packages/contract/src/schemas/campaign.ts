@@ -5,7 +5,7 @@ import { Id, IsoDate } from '../define'
 
 export const StatusAction = z.enum(['pause', 'resume', 'complete'])
 
-/** `changeCampaignStatus` (apps/web/lib/campaigns/status.ts): selected campaign columns. */
+/** `changeCampaignStatus` (apps/api/lib/campaigns/status.ts): selected campaign columns. */
 export const CampaignStatusChange = z.object({
   id: Id,
   status: z.string(),
@@ -16,7 +16,7 @@ export const SendHold = z.enum([
   'CAMPAIGN_PAUSED', 'QUOTA', 'MAILBOX_DISCONNECTED', 'NO_SENDER', 'MAILBOX_PAUSED', 'MAILBOX_CAP', 'SHARED_CAP',
 ])
 
-/** `getSendStatus` (apps/web/lib/sequences/send-status.ts). */
+/** `getSendStatus` (apps/api/lib/sequences/send-status.ts). */
 export const SendStatus = z.object({
   queued: z.number().int(),
   hold: SendHold.nullable(),
@@ -27,7 +27,7 @@ export const SendStatus = z.object({
   quota: z.object({ current: z.number(), limit: z.number().nullable() }),
 })
 
-/** `SendEstimate` (apps/web/lib/sequences/launch-estimate.ts). */
+/** `SendEstimate` (apps/api/lib/sequences/launch-estimate.ts). */
 export const SendEstimate = z.object({
   dailyLimit: z.number(),
   today: z.number(),
@@ -39,7 +39,7 @@ export const SendEstimate = z.object({
 
 export const StepChannel = z.enum(['EMAIL', 'LINKEDIN', 'WHATSAPP', 'SMS'])
 
-/** `StepStats` (apps/web/lib/services/campaign-stats.service.ts). */
+/** `StepStats` (apps/api/lib/services/campaign-stats.service.ts). */
 export const StepStats = z.object({
   stepId: Id,
   position: z.number().int(),

@@ -1,4 +1,4 @@
-/** Lead shapes shared by several endpoints (mirror of apps/web/lib/types/lead.ts). */
+/** Lead shapes shared by several endpoints (mirror of apps/api/lib/types/lead.ts). */
 
 import { z } from 'zod'
 import { Id, IsoDate } from '../define'
@@ -7,7 +7,7 @@ export const CompanySize = z.enum(['XS', 'S', 'M', 'L', 'XL'])
 export const LeadScoreBadge = z.enum(['FAST_TRACK', 'NORMAL', 'NURTURE', 'SKIP', 'UNSCORED'])
 export const LeadStatus = z.enum(['new', 'contacted', 'qualified', 'converted', 'lost'])
 
-/** One row of the Leads page (`toLeadRow`, apps/web/lib/leads/lead-rows.ts). */
+/** One row of the Leads page (`toLeadRow`, apps/api/lib/leads/lead-rows.ts). */
 export const LeadRow = z.object({
   id: Id,
   firstName: z.string(),

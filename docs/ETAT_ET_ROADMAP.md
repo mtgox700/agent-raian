@@ -105,7 +105,7 @@ Signal → Data (waterfall) → Scoring (LLM) → Copy (LLM + grounding) →
 ## 5. Comment lancer
 
 ```bash
-cd apps/web
+cd apps/api
 cp env.local.template .env.local      # coller les clés (TIER 1 d'abord)
 npm run setup:check                   # rapport actif/bloqué
 npm install

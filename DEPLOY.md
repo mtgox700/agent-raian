@@ -9,29 +9,35 @@ L'historique des migrations ne sait pas créer une base vide (une migration anci
 par la baseline suivante). Sur une base **vide**, lancer d'abord :
 
 ```bash
-cd apps/web
+cd apps/api
 DATABASE_URL=postgresql://… DIRECT_URL=postgresql://… npm run db:bootstrap
 ```
 
 Le script crée le schéma et marque les migrations comme appliquées ; chaque build ne joue ensuite que les
 nouvelles migrations.
 
-## 2. Projet Vercel
+## 2. Deux projets Vercel : châssis et carrosserie
 
-- Importer le dépôt, **Root Directory = racine du dépôt** (c'est le `vercel.json` racine qui est lu ;
-  région `cdg1`).
-- Variables : `bash scripts/vercel-env-setup.sh` après `vercel link`, ou à la main depuis
-  `apps/web/env.local.template`. Minimum pour démarrer : `DATABASE_URL`, `DIRECT_URL`,
-  `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `ENCRYPTION_KEY` (`openssl rand -hex 32`),
-  `CRON_SECRET`, `NEXT_PUBLIC_BASE_URL`.
-- `DATABASE_URL` et `DIRECT_URL` en **production seulement**. Le build lance les migrations, sauf sur les
-  previews (`scripts/migrate-on-deploy.mjs`) ; mettre `MIGRATE_ON_PREVIEW=1` si les previews ont leur
-  propre base.
+Le dépôt contient deux applications déployées séparément (docs/ROADMAP_HEADLESS.md, phase 5) :
+
+| Projet | Root Directory | Rôle | Variables |
+|---|---|---|---|
+| **api** | `apps/api` | Routes `/api/*`, base, Inngest, webhooks. Aucune page. | tout `apps/api/env.local.template` (`bash scripts/vercel-env-setup.sh api`) |
+| **front** | `apps/front` | Pages et composants. Relaie `/api/*` vers `API_URL` (même origine : cookies Clerk, pas de CORS). | `API_URL`, clés Clerk, `NEXT_PUBLIC_*` (`API_URL=… bash scripts/vercel-env-setup.sh front`) |
+
+- Déployer **api** d'abord, puis renseigner son URL dans `API_URL` du projet **front**. Le domaine public
+  pointe sur **front** ; les webhooks peuvent viser le domaine public (relayés) ou l'URL de l'API.
+- Chaque projet a son `vercel.json` (région `cdg1`, install à la racine du monorepo).
+- `DATABASE_URL` et `DIRECT_URL` (projet **api**) en **production seulement**. Le build lance les
+  migrations, sauf sur les previews (`scripts/migrate-on-deploy.mjs`) ; mettre `MIGRATE_ON_PREVIEW=1` si
+  les previews ont leur propre base.
+- Une autre marque = un autre projet **front** (même Root Directory, `NEXT_PUBLIC_BRAND=<clé>`), branché
+  sur le même **api**.
 
 ## 3. Planification : Inngest
 
 Les tâches récurrentes (séquences, relève des boîtes mail, housekeeping, insights) tournent sur
-**Inngest** : connecter l'intégration Vercel d'Inngest et poser `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY`.
+**Inngest** (aucun cron Vercel n'est déclaré) : connecter l'intégration Vercel d'Inngest et poser `INNGEST_EVENT_KEY` / `INNGEST_SIGNING_KEY`.
 Sans Inngest, aucune séquence ne part. Les routes `/api/cron/*` restent un déclenchement de secours
 (appel manuel ou cron externe avec `Authorization: Bearer $CRON_SECRET`).
 

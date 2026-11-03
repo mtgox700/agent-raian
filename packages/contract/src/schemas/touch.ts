@@ -1,4 +1,4 @@
-/** WhatsApp / SMS touches (mirror of apps/web/lib/touch/touch.service.ts). */
+/** WhatsApp / SMS touches (mirror of apps/api/lib/touch/touch.service.ts). */
 
 import { z } from 'zod'
 import { Id, IsoDate } from '../define'

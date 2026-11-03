@@ -1,4 +1,4 @@
-/** View endpoint of the Settings page (apps/web/lib/views/settings.ts). */
+/** View endpoint of the Settings page (apps/api/lib/views/settings.ts). */
 
 import { z } from 'zod'
 import { endpoint, IsoDate } from '../../define'

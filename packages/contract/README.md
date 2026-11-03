@@ -1,6 +1,6 @@
 # @phantera/contract
 
-Contrat entre le **châssis** (le back, `apps/web/app/api`) et les **carrosseries** (les fronts).
+Contrat entre le **châssis** (le back, `apps/api/app/api`) et les **carrosseries** (les fronts).
 Un front ne s'appuie que sur ce contrat, via `@phantera/sdk`.
 
 - `src/endpoints/<domaine>.ts` : un `endpoint()` par méthode et chemin (params, query, body, réponse 2xx en zod).
@@ -18,7 +18,7 @@ Un front ne s'appuie que sur ce contrat, via `@phantera/sdk`.
 
 | Contrôle | Où |
 |---|---|
-| Chaque endpoint a son handler, chaque handler est au contrat, chaque URL `/api` du front est au contrat, `openapi.json` à jour | `apps/web/lib/contract/contract.test.ts` (vitest, CI) |
+| Chaque endpoint a son handler, chaque handler est au contrat, chaque URL `/api` du front est au contrat, `openapi.json` à jour | `apps/api/lib/contract/contract.test.ts` (vitest, CI) |
 | Pas de changement cassant face à la branche de base | `.github/workflows/contract.yml` (oasdiff) |
 | Une PR front (`front/*` ou label `front`) ne touche pas au châssis | `scripts/check-front-boundary.mjs` (CI) |
 | Une réponse réelle s'écarte du contrat | le SDK le signale en dev (`onContractMismatch`) sans casser l'appel |

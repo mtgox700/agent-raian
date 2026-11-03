@@ -123,7 +123,7 @@ curl -X GET https://phantera-tn.com/api/leads/<OTHER_USER_LEAD_ID>/status \
 **Test:**
 ```bash
 # Sanity check: ESLint catches dangerouslySetInnerHTML
-cd apps/web && grep -rn "dangerouslySetInnerHTML" --include="*.tsx" components app
+cd apps/api && grep -rn "dangerouslySetInnerHTML" --include="*.tsx" components app
 # Expected: empty
 ```
 
@@ -276,7 +276,7 @@ curl -i https://phantera-tn.com/dashboard
 
 **Test:**
 ```bash
-cd apps/web && grep -rn "fetch(.*\${.*}\)" --include="*.ts" lib/
+cd apps/api && grep -rn "fetch(.*\${.*}\)" --include="*.ts" lib/
 # Expected: no user-input interpolation in fetch URLs
 ```
 
@@ -332,8 +332,8 @@ if (!checkAiGenerationAllowed(workspace.plan)) return 402
 
 ```
 Production secrets       → Vercel Environment Variables (encrypted at rest)
-Local dev secrets        → apps/web/.env.local (git-ignored)
-Documentation             → apps/web/.env.example (empty placeholders)
+Local dev secrets        → apps/api/.env.local (git-ignored)
+Documentation             → apps/api/.env.example (empty placeholders)
 ```
 
 ### Secret inventory (15+ tracked)

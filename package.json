@@ -7,13 +7,16 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=apps/web",
-    "build": "npm run build --workspace=apps/web",
-    "start": "npm run start --workspace=apps/web",
-    "lint": "npm run lint --workspace=apps/web",
-    "type-check": "npm run type-check --workspace=apps/web",
+    "dev": "npm run dev --workspace=@phantera/api & npm run dev --workspace=@phantera/front & wait",
+    "build": "npm run build --workspace=@phantera/api && npm run build --workspace=@phantera/front",
+    "start": "npm run start --workspace=@phantera/api & npm run start --workspace=@phantera/front & wait",
+    "lint": "npm run lint --workspace=@phantera/api && npm run lint --workspace=@phantera/front",
+    "type-check": "npm run type-check --workspace=@phantera/api && npm run type-check --workspace=@phantera/front",
     "openapi": "npm run openapi --workspace=@phantera/contract",
-    "themes": "npm run build --workspace=@phantera/themes"
+    "themes": "npm run build --workspace=@phantera/themes",
+    "dev:api": "npm run dev --workspace=@phantera/api",
+    "dev:front": "npm run dev --workspace=@phantera/front",
+    "test": "npm test --workspace=@phantera/api && npm test --workspace=@phantera/front"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.7",

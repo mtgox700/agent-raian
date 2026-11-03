@@ -1,16 +1,22 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────────────────────────
 # Phantera — Vercel environment variables setup
-# Run ONCE after `vercel link` (from the repo root) to push the env vars.
-# Usage: bash scripts/vercel-env-setup.sh
-# Reference for every variable: apps/web/env.local.template
+# Two Vercel projects: the chassis (Root Directory apps/api) and the front
+# (Root Directory apps/front). Run ONCE per project, after `vercel link` in
+# that app's folder, from the repo root:
+#   bash scripts/vercel-env-setup.sh api   API_URL is not needed
+#   bash scripts/vercel-env-setup.sh front needs API_URL=https://<api deployment>
+# Reference for every variable: apps/api/env.local.template
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -e
 
-source apps/web/.env.local 2>/dev/null || { echo "❌ apps/web/.env.local not found"; exit 1; }
+TARGET=${1:-}
+case "$TARGET" in api|front) ;; *) echo "Usage: bash scripts/vercel-env-setup.sh api|front"; exit 1 ;; esac
+source apps/api/.env.local 2>/dev/null || { echo "❌ apps/api/.env.local not found"; exit 1; }
+cd "apps/$TARGET"
 
-echo "🚀 Setting Vercel environment variables..."
+echo "🚀 Setting Vercel environment variables for apps/$TARGET..."
 
 ALL="production preview development"
 
@@ -25,6 +31,22 @@ add_env() {
       && echo "  ✓ $key ($env)" || echo "  ✗ $key ($env) failed"
   done
 }
+
+if [ "$TARGET" = front ]; then
+  [ -n "${API_URL:-}" ] || { echo "❌ Set API_URL (the chassis deployment URL) first"; exit 1; }
+  add_env "API_URL" "$API_URL"
+  add_env "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" "$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+  add_env "CLERK_SECRET_KEY" "$CLERK_SECRET_KEY"
+  add_env "NEXT_PUBLIC_CLERK_SIGN_IN_URL" "/sign-in"
+  add_env "NEXT_PUBLIC_CLERK_SIGN_UP_URL" "/sign-up"
+  add_env "NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL" "/dashboard"
+  add_env "NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL" "/onboarding"
+  add_env "NEXT_PUBLIC_SENTRY_DSN"   "$NEXT_PUBLIC_SENTRY_DSN"
+  add_env "NEXT_PUBLIC_POSTHOG_KEY"  "$NEXT_PUBLIC_POSTHOG_KEY"
+  add_env "NEXT_PUBLIC_POSTHOG_HOST" "$NEXT_PUBLIC_POSTHOG_HOST"
+  echo "✅ Done (front). Still to set by hand: NEXT_PUBLIC_BASE_URL (the public URL), NEXT_PUBLIC_BRAND for a non-default brand."
+  exit 0
+fi
 
 # ── Database: production only. The build runs `prisma migrate deploy`; previews
 #    must point at their own database (e.g. a Neon branch), never at prod.
@@ -76,5 +98,5 @@ add_env "NEXT_PUBLIC_POSTHOG_HOST" "$NEXT_PUBLIC_POSTHOG_HOST"
 echo ""
 echo "✅ Done. Still to set by hand:"
 echo "   • NEXT_PUBLIC_BASE_URL / NEXT_PUBLIC_API_URL → the production URL"
-echo "   • Optional providers (Apollo, Hunter, Unipile, Google/Microsoft OAuth…): see apps/web/env.local.template"
+echo "   • Optional providers (Apollo, Hunter, Unipile, Google/Microsoft OAuth…): see apps/api/env.local.template"
 echo "   • Webhook secrets once the URLs exist (Clerk, Stripe, Resend, Unipile)"

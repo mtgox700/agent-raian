@@ -1,5 +1,5 @@
 /**
- * Writes apps/web/app/themes.generated.css from the themes.
+ * Writes apps/front/app/themes.generated.css from the themes.
  *   tsx scripts/build-css.ts           write
  *   tsx scripts/build-css.ts --check   fail when out of date
  */
@@ -11,7 +11,7 @@ import { z } from 'zod'
 import { buildCss } from '../src/css'
 import { Theme } from '../src/index'
 
-const out = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'apps', 'web', 'app', 'themes.generated.css')
+const out = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'apps', 'front', 'app', 'themes.generated.css')
 const next = buildCss()
 
 if (process.argv.includes('--check')) {

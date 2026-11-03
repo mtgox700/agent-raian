@@ -13,10 +13,7 @@ import { execFileSync } from 'node:child_process'
 
 // Chassis: anything here belongs to the back or to the contract.
 const CHASSIS = [
-  /^apps\/web\/app\/api\//,
-  /^apps\/web\/lib\/(?!stores\/|hooks\/|design\/)/,
-  /^apps\/web\/prisma\//,
-  /^apps\/web\/middleware\.ts$/,
+  /^apps\/api\//,
   /^packages\/contract\//,
 ]
 

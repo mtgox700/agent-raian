@@ -1,4 +1,4 @@
-/** Security shapes (apps/web/lib/audit/audit.ts, app/api/security/**). */
+/** Security shapes (apps/api/lib/audit/audit.ts, app/api/security/**). */
 
 import { z } from 'zod'
 import { Id, IsoDate } from '../define'

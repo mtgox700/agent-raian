@@ -1,4 +1,4 @@
-/** Activity feed (apps/web/lib/types/dashboard.ts). */
+/** Activity feed (apps/api/lib/types/dashboard.ts). */
 
 import { z } from 'zod'
 import { IsoDate } from '../define'

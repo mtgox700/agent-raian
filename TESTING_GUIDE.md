@@ -259,7 +259,7 @@ data: {"type":"pipeline_done"}
 | `RESEND_FROM_EMAIL` | `noreply@ton-domaine.com` (domaine vérifié) |
 
 3. Après chaque ajout, clique **Save**
-4. Redéploie : `vercel --prod --yes` (depuis `apps/web`)
+4. Redéploie : `vercel --prod --yes` (depuis `apps/api`)
 
 ### Test Apollo réel
 
@@ -394,7 +394,7 @@ curl -X POST http://localhost:3000/api/webhooks/resend \
 3. Onglet **"Data"** ou connecte-toi via :
 
 ```bash
-# Dans apps/web
+# Dans apps/api
 npx prisma studio
 ```
 
@@ -419,7 +419,7 @@ Dans Prisma Studio (http://localhost:5555) :
 Si tu deploy sur une nouvelle DB Railway :
 
 ```bash
-cd apps/web
+cd apps/api
 DATABASE_URL="postgresql://..." npx prisma migrate deploy
 ```
 

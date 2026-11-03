@@ -1,6 +1,7 @@
 name: CI
 
-# Type-check, tests and lint on every pull request and every push to main.
+# Type-check, tests and lint of both apps on every pull request and every
+# push to main: the chassis (apps/api) and the front (apps/front).
 # No secret is needed: tests run against mocked providers only.
 
 on:
@@ -16,12 +17,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checks:
+  api:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: apps/web
+        working-directory: apps/api
     env:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
@@ -47,4 +48,40 @@ jobs:
         run: npx vitest run --pool=forks
 
       - name: Lint
-        run: npx eslint app components lib middleware.ts
+        run: npx eslint app lib middleware.ts
+
+  front:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/front
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        working-directory: .
+        run: npm ci --no-audit --no-fund
+
+      # The front type-checks against the chassis' shared lib, which imports @prisma/client types.
+      - name: Prisma client
+        working-directory: apps/api
+        run: npx prisma generate
+
+      - name: Themes are compiled
+        working-directory: .
+        run: npm run check --workspace=@phantera/themes
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npx vitest run --pool=forks
+
+      - name: Lint
+        run: npx eslint app components lib hooks middleware.ts

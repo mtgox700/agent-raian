@@ -5,7 +5,7 @@ import { endpoint } from '../../define'
 import { HotLead } from '../../schemas/leadPipeline'
 import { Plan } from '../../schemas/analyst'
 
-/** `FunnelStep` (apps/web/lib/repositories/campaigns.repository.ts). */
+/** `FunnelStep` (apps/api/lib/repositories/campaigns.repository.ts). */
 export const FunnelStep = z.object({
   label: z.string(),
   count: z.number(),

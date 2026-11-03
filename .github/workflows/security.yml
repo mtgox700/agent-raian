@@ -36,7 +36,7 @@ jobs:
         run: >
           semgrep scan --metrics=off --error --severity ERROR
           --config p/owasp-top-ten --config p/typescript --config p/nextjs --config p/secrets
-          apps/web
+          apps/api apps/front
 
   dependencies:
     name: Dependency audit

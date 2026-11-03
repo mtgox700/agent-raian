@@ -5,7 +5,7 @@
 > **Thèse produit :** *« décrocher des RDV sans cramer ses domaines ».* On gagne sur la
 > **sécurité de délivrabilité** + un SDR IA déclenché par signaux, pas sur le volume.
 
-Monorepo npm workspaces · `apps/web` = **Next.js 16** (Turbopack) · Prisma/Postgres · Clerk · Stripe ·
+Monorepo npm workspaces · `apps/api` = **Next.js 16** (Turbopack) · Prisma/Postgres · Clerk · Stripe ·
 LLM **Ollama Cloud** (FOSS) · **Inngest** (exécution durable) · déployé sur Vercel.
 
 ---
@@ -18,7 +18,7 @@ Contrat d'API front/back : [`packages/contract`](packages/contract/README.md).
 À la main :
 
 ```bash
-cd apps/web
+cd apps/api
 cp env.local.template .env.local     # coller les clés (TIER 1 en premier)
 npm run setup:check                  # rapport actif/bloqué par feature
 npm install
@@ -28,7 +28,7 @@ npm run dev                          # + (option) npx inngest-cli@latest dev
 
 **Qualité :** `npm run type-check` · `npm run lint` · `npm run test` · `npm run test:llm:security` (garak).
 
-> Sans clés, tout tourne en **mocks déterministes** (rien ne casse). Voir `apps/web/env.local.template`.
+> Sans clés, tout tourne en **mocks déterministes** (rien ne casse). Voir `apps/api/env.local.template`.
 
 ---
 
@@ -54,18 +54,18 @@ npm run dev                          # + (option) npx inngest-cli@latest dev
 | **[docs/SECURITY.md](docs/SECURITY.md)** | OWASP, webhooks, secrets, GDPR, runbook incidents |
 | **[docs/PERFORMANCE.md](docs/PERFORMANCE.md)** | Core Web Vitals, budgets, optimisations |
 | **[docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)** | Tokens, composants, motion |
-| **[apps/web/security/garak/README.md](apps/web/security/garak/README.md)** | Red-team LLM (NVIDIA garak) |
+| **[apps/api/security/garak/README.md](apps/api/security/garak/README.md)** | Red-team LLM (NVIDIA garak) |
 
 ### Tests & setup
 | Doc | Contenu |
 |-----|---------|
 | **[AUDIT.md](AUDIT.md)** | Rapport d'audit initial + fixes |
 | **[TESTING_GUIDE.md](TESTING_GUIDE.md)** | Guide de test du pipeline |
-| **[apps/web/env.local.template](apps/web/env.local.template)** | Toutes les variables d'env, par priorité |
+| **[apps/api/env.local.template](apps/api/env.local.template)** | Toutes les variables d'env, par priorité |
 
 ---
 
-## 🧭 Modules clés (`apps/web/lib/`)
+## 🧭 Modules clés (`apps/api/lib/`)
 
 | Domaine | Chemin |
 |---|---|

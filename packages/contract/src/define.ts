@@ -3,7 +3,7 @@
  *
  * One `endpoint()` per method and path. The contract is the only thing a
  * front may rely on: the back implements it (checked by
- * apps/web/lib/contract/contract.test.ts), the SDK and openapi.json are
+ * apps/api/lib/contract/contract.test.ts), the SDK and openapi.json are
  * derived from it.
  */
 

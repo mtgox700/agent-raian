@@ -65,7 +65,7 @@ Below is the **complete inventory** of perf optimisations active in production. 
 ### 1. Next.js framework optimisations
 
 ```javascript
-// apps/web/next.config.js
+// apps/api/next.config.js
 
 experimental: {
   // Inline critical above-the-fold CSS — reduces render-blocking resources
@@ -105,7 +105,7 @@ images: {
 ### 3. Font loading
 
 ```typescript
-// apps/web/app/layout.tsx
+// apps/front/app/layout.tsx
 
 const syne  = Syne({  subsets: ['latin'], weight: ['700','800'], display: 'swap', preload: true })
 const inter = Inter({ subsets: ['latin'], weight: ['300','400','500'], display: 'swap', preload: true })
@@ -139,7 +139,7 @@ Currently `'use client'` files: ~50 (interactive components only).
 ### 7. Lazy hydration via `ClientShell`
 
 ```typescript
-// apps/web/components/effects/ClientShell.tsx
+// apps/front/components/effects/ClientShell.tsx
 const LenisProvider  = dynamic(() => import('./LenisProvider'), { ssr: false })
 const CustomCursor   = dynamic(() => import('@/components/marketing/CustomCursor'), { ssr: false })
 const ScrollProgress = dynamic(() => import('@/components/marketing/ScrollProgress'), { ssr: false })
@@ -219,7 +219,7 @@ Maximum allowed sizes (gzipped):
 ### How to check
 
 ```bash
-cd apps/web
+cd apps/api
 npm run build
 # Look for: ┌ Route (app)
 #          Size  First Load JS
@@ -252,7 +252,7 @@ Automated Lighthouse runs on every PR via GitHub Actions.
 
 ### Config
 
-`apps/web/lighthouserc.json` defines:
+`apps/api/lighthouserc.json` defines:
 - URLs to audit (home, about, sign-in, pricing)
 - Score thresholds per category
 - 3 runs per URL (median is used -> stable scores)
@@ -281,7 +281,7 @@ Compare against thresholds
 ### Running locally
 
 ```bash
-cd apps/web
+cd apps/api
 npx @lhci/cli@latest autorun --config=./lighthouserc.json
 ```
 

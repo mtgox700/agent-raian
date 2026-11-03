@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",
-    "@clerk/elements": "^0.24.20",
+    "@clerk/elements": "^0.24.21",
     "@clerk/localizations": "^3.37.9",
     "@clerk/nextjs": "^6.39.2",
     "@clerk/themes": "^2.4.57",
@@ -27,7 +27,7 @@
     "@prisma/client": "^6.19.3",
     "@radix-ui/react-slot": "^1.1.0",
     "@sentry/nextjs": "^10.76.2",
-    "@tanstack/react-query": "^5.104.3",
+    "@tanstack/react-query": "^5.105.0",
     "@tanstack/react-table": "^8.21.3",
     "@types/mailparser": "^3.9.0",
     "@types/pg": "^8.23.1",
@@ -36,14 +36,14 @@
     "dotenv": "^17.4.2",
     "fflate": "0.8.3",
     "framer-motion": "^11.3.19",
-    "inngest": "^4.24.0",
+    "inngest": "^4.26.2",
     "lucide-react": "^0.414.0",
-    "mailparser": "^3.9.39",
-    "next": "^16.4.2",
+    "mailparser": "^3.14.1",
+    "next": "^16.4.3",
     "nodemailer": "^10.1.1",
     "pg": "^8.23.1",
-    "posthog-js": "^1.438.12",
-    "posthog-node": "^5.56.1",
+    "posthog-js": "^1.444.0",
+    "posthog-node": "^5.61.1",
     "prisma": "^6.19.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -54,7 +54,7 @@
     "svix": "^1.90.0",
     "tailwind-merge": "^2.4.0",
     "zod": "^4.6.7",
-    "zustand": "^5.0.15"
+    "zustand": "^5.0.16"
   },
   "browserslist": [
     "chrome >= 111",
@@ -70,13 +70,13 @@
     "@types/nodemailer": "^8.0.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.6.1",
+    "autoprefixer": "^10.6.2",
     "critters": "^0.0.25",
-    "eslint": "^10.12.0",
-    "eslint-config-next": "^16.4.2",
+    "eslint": "^10.14.0",
+    "eslint-config-next": "^16.4.3",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^8.71.2"
+    "typescript-eslint": "^8.72.1"
   }
 }

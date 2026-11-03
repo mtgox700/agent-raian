@@ -206,8 +206,6 @@ export function LeadsTable({ leads, selectedIds = [], onSelectionChange, onQuery
     }),
   ], [])
 
-  // TanStack Table returns functions React Compiler cannot memoize; the table is local to this component.
-  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data: filteredLeads,
     columns,

@@ -208,7 +208,7 @@ export function CampaignDetail({
     setDrawerOpen(false)
     abortRef.current?.abort()
     abortRef.current = new AbortController()
-    setProgress({ ...INITIAL_PROGRESS, phase: 'search', searchTotal: params.limit })
+    setProgress({ ...INITIAL_PROGRESS, phase: 'search', searchTotal: params.limit ?? 25 })
 
     try {
       await consume(params, (event) => {

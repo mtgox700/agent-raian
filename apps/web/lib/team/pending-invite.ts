@@ -4,7 +4,7 @@
  * land in onboarding and create their own workspace. So the invitation page
  * keeps the token in a short-lived cookie before sending them to Clerk; the
  * dashboard and onboarding layouts see it and send them back, once, to the
- * invitation (/invite/resume consumes the cookie).
+ * invitation (/api/invitations/resume consumes the cookie).
  */
 
 export const PENDING_INVITE_COOKIE = 'phantera_invite'

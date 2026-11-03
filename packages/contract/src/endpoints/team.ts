@@ -54,6 +54,30 @@ export const teamEndpoints = [
     responseKind: 'redirect',
   }),
 
+  // app/api/invitations/[token]/start/route.ts
+  endpoint({
+    id: 'team.startInvitation',
+    method: 'GET',
+    path: '/api/invitations/[token]/start',
+    summary: 'Keep a valid invitation in a short-lived cookie, then redirect to Clerk sign-up (default) or sign-in.',
+    auth: 'public',
+    params: z.object({ token: z.string().min(1) }),
+    query: z.object({ with: z.enum(['sign-up', 'sign-in']).optional() }),
+    response: z.never(),
+    responseKind: 'redirect',
+  }),
+
+  // app/api/invitations/resume/route.ts
+  endpoint({
+    id: 'team.resumeInvitation',
+    method: 'GET',
+    path: '/api/invitations/resume',
+    summary: 'After sign-in/up: back to the kept invitation (cookie consumed), else to /dashboard.',
+    auth: 'public',
+    response: z.never(),
+    responseKind: 'redirect',
+  }),
+
   // app/api/team/members/[userId]/route.ts
   endpoint({
     id: 'team.changeRole',

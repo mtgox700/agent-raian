@@ -22,7 +22,7 @@ export type OnboardingView = { state: 'ready' } | { state: 'redirect'; to: strin
 
 export async function onboardingView(db: PrismaClient, userId: string): Promise<OnboardingView> {
   // Just signed in or up from an invitation: back to it before anything else.
-  if (await hasPendingInvite()) return { state: 'redirect', to: '/invite/resume' }
+  if (await hasPendingInvite()) return { state: 'redirect', to: '/api/invitations/resume' }
 
   const completedSelect = { id: true } as const
 

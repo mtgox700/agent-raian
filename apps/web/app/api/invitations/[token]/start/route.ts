@@ -1,5 +1,5 @@
 /**
- * GET /invite/[token]/start?with=sign-up|sign-in: keeps the invitation in a
+ * GET /api/invitations/[token]/start?with=sign-up|sign-in: keeps the invitation in a
  * short-lived cookie, then hands over to Clerk (lib/team/pending-invite).
  * Only a token of a valid invitation is kept.
  */

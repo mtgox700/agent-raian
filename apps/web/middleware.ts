@@ -22,7 +22,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/security/redteam(.*)', // garak red-team probe — gated by ENABLE_REDTEAM + secret
   '/api/mcp(.*)',
   '/api/views/invite/(.*)', // invitation page data: the token is the key (signed-out visitors too)
-  '/api/invitations/(.*)', // invitation form post: redirects to sign-in itself without a session
+  '/api/invitations/(.*)', // invitation start / resume / accept: token-guarded, redirect to sign-in themselves
   '/sitemap.xml',
   '/robots.txt',
   '/llms.txt',

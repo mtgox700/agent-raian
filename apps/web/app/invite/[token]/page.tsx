@@ -68,8 +68,8 @@ export default async function InvitePage({ params, searchParams }: Props) {
       <div className="mt-6 space-y-3">
         {!signedIn && (
           <>
-            <a href={`/invite/${token}/start?with=sign-up`} className={buttonClass}>Créer mon compte</a>
-            <a href={`/invite/${token}/start?with=sign-in`} className={secondaryClass}>J’ai déjà un compte</a>
+            <a href={`/api/invitations/${token}/start?with=sign-up`} className={buttonClass}>Créer mon compte</a>
+            <a href={`/api/invitations/${token}/start?with=sign-in`} className={secondaryClass}>J’ai déjà un compte</a>
           </>
         )}
         {signedIn && emailVerified && (

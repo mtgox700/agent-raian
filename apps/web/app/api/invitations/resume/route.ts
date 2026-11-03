@@ -1,5 +1,5 @@
 /**
- * GET /invite/resume: back to the invitation kept before signing in or up.
+ * GET /api/invitations/resume: back to the invitation kept before signing in or up.
  * The cookie is consumed here: the layouts send someone here once at most.
  */
 import { cookies } from 'next/headers'

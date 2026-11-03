@@ -36,6 +36,6 @@ export const PUBLIC_SURFACES: Record<string, PublicSurface> = {
   'app/api/views/dashboard-shell/route.ts':  { reason: 'Dashboard layout gate: loadAccess in lib/views/dashboard-shell, before any workspace is read', guard: 'auth()' },
   'app/api/views/invite/[token]/route.ts':  { reason: 'Invitation page data: the token is the key (readInvitation in lib/views/invite), nothing is shown for an unusable one', guard: 'inviteView' },
   'app/api/invitations/[token]/accept/route.ts': { reason: 'Joining needs a session and a verified e-mail equal to the invited one; token single use (lib/actions/accept-invitation)', guard: 'acceptInvitationAs(' },
-  'app/invite/[token]/start/route.ts':       { reason: 'Keeps a valid invitation token in a cookie before Clerk sign-in/up', guard: 'readInvitation' },
-  'app/invite/resume/route.ts':              { reason: 'Sends back to the kept invitation once, consuming the cookie', guard: 'hashInvitationToken' },
+  'app/api/invitations/[token]/start/route.ts':      { reason: 'Keeps a valid invitation token in a cookie before Clerk sign-in/up', guard: 'readInvitation' },
+  'app/api/invitations/resume/route.ts':      { reason: 'Sends back to the kept invitation once, consuming the cookie', guard: 'hashInvitationToken' },
 }

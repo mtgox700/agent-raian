@@ -24,7 +24,7 @@ export type DashboardShellView =
 
 export async function dashboardShellView(db: PrismaClient, userId: string): Promise<DashboardShellView> {
   // Just signed in or up from an invitation: back to it before anything else.
-  if (await hasPendingInvite()) return { state: 'redirect', to: '/invite/resume' }
+  if (await hasPendingInvite()) return { state: 'redirect', to: '/api/invitations/resume' }
 
   // ── Workspace + onboarding check ─────────────────────────────────────────
   const workspaceSelect = { id: true } as const

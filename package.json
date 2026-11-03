@@ -16,7 +16,10 @@
     "themes": "npm run build --workspace=@phantera/themes",
     "dev:api": "npm run dev --workspace=@phantera/api",
     "dev:front": "npm run dev --workspace=@phantera/front",
-    "test": "npm test --workspace=@phantera/api && npm test --workspace=@phantera/front"
+    "test": "npm test --workspace=@phantera/api && npm test --workspace=@phantera/front",
+    "bodies": "node scripts/bodies.mjs",
+    "brand:new": "node scripts/new-brand.mjs",
+    "brands:sync": "node scripts/sync-brands.mjs"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.7",

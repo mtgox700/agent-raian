@@ -1,3 +1,5 @@
+// Server-safe primitives. Client-only ones are imported from their file:
+// Dialog from '@/components/ui/dialog'.
 export { Button, buttonVariants, type ButtonProps } from './button'
 export { Container } from './container'
 export { Eyebrow } from './eyebrow'
@@ -5,3 +7,11 @@ export { Heading } from './heading'
 export { Section } from './section'
 export { StopShort } from './stop-short'
 export { Photo } from './photo'
+export { Input, Field, describedBy, controlClass, type InputProps } from './input'
+export { Select, type SelectProps } from './select'
+export { Textarea } from './textarea'
+export { Badge, type BadgeTone } from './badge'
+export { Table, TableCaption, TableHeader, TableBody, TableRow, TableHead, TableCell } from './table'
+export { EmptyState } from './empty-state'
+export { Skeleton } from './skeleton'
+export { Panel } from './panel'

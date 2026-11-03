@@ -43,7 +43,8 @@ Widths: `max-w-page` (76rem column), `max-w-prose` (38rem reading). Easing: `eas
 `Button`/`buttonVariants` (primary | outline | ghost; sm | md | lg), `Container`, `Eyebrow`
 (mono label, optional step number), `Heading` (hero | section | card; level independent of size),
 `Section` (numbered, titled, labelled by its title), `StopShort` (the signature), `Photo`
-(ratio box + credit). Brand: `components/brand/Logo` (the only place that branches on `brand.key`).
+(ratio box + credit). Brand: `components/brand/Logo` (the only place that branches on `brand.key`;
+`surface="app"` for the signed-in app's ground, `markOnly` for the emblem alone).
 
 ## Motion
 
@@ -60,7 +61,40 @@ Lighthouse performance ≥ 0.95, accessibility / best practices / SEO = 1, CLS �
 Images carry width/height or a ratio box; the LCP (hero headline) is text, painted by the
 server HTML. Focus is always visible (`:focus-visible` accent outline); skip link first.
 
-## For the dashboard
+## Form, data and state primitives (`components/ui`)
 
-Reuse the tokens and primitives; the theme's `[data-app-shell]` variables repaint the app
-area per brand. Add primitives here (inputs, table, badge, dialog) rather than in screens.
+| Primitive | Use |
+|---|---|
+| `Input` (sm \| md), `Field`, `describedBy` | `Field id label hint error` renders the label, hint and error (role=alert) wired by id; give the control `id`, `aria-invalid` and `aria-describedby={describedBy(id, { hint, error })}`. `controlClass` is the shared control look. |
+| `Select` (sm \| md) | Native `<select>` with the control look and a chevron; `wrapperClassName` sizes it. |
+| `Textarea` | Same look, vertical resize. |
+| `Badge tone live dot` | A status: dot + word. Tones: `accent` machine working, `signal` a person answered, `success`, `warning`, `danger`, `ai`, `neutral`. Status → tone maps live in `lib/app-copy.ts` (e.g. `campaignCard.status`). |
+| `Table`, `TableCaption`, `TableHeader`, `TableBody`, `TableRow`, `TableHead numeric`, `TableCell numeric` | Ruled table, mono headers, numbers right-aligned; scrolls sideways on a phone. Always a caption (can be `sr-only`) or `aria-label`. |
+| `Dialog open onClose title description closeLabel footer size` | Native `<dialog>` modal (focus trap, Escape, focus return by the browser). **Client only: import from `@/components/ui/dialog`**, never through the barrel. |
+| `EmptyState icon title action align` | Nothing yet: what will appear and the one action that fills it. |
+| `Skeleton` | Shape of what is coming; the waiting container carries `aria-busy` and a label. |
+| `Panel title meta action padded` | The dashboard card: raised surface, mono title (`h2`), quiet meta and an action on the right. |
+
+## The signed-in app (`app/(dashboard)`)
+
+- **Gate**: `app/(dashboard)/layout.tsx` loads `views.dashboardShell` and applies its redirect
+  (sign-in, invitation, onboarding) before any page renders; then `AuthProviders` + `AppShell`.
+  `/onboarding` lives in `app/(auth)/onboarding` behind `views.onboarding`.
+- **Chrome** (`components/app`): `AppShell` (`data-app-shell`, drawer state, Escape, toasts),
+  `Sidebar` (nav, live counts `inbox.unreadCount` / `touches.queue`, collapse, workspace switcher,
+  free-plan upsell), `Topbar` (menu button, `NotificationBell`, Clerk `UserButton`).
+  Nav entries are `NAV_ITEMS` in `lib/app-copy.ts`; active rule `isActivePath`.
+- **A screen** = `app/(dashboard)/dashboard/<route>/page.tsx` (server): `loadView('views.<id>', input)`,
+  apply its redirect if it has one, render `<AppPage title description actions>` around components
+  from `components/dashboard/<screen>/`. Pieces used by several screens go in
+  `components/dashboard/shared/` (`CampaignCard`, `InsightsPanel`, `InsightActions`, `SenderPicker`).
+  Add `loading.tsx` with `Skeleton`s in the page's shape; `dashboard/error.tsx` covers errors.
+- **Data**: server via `loadView`; client via `api` from `@/lib/front/api` (`api.call(id, input)`,
+  `api.url(id, input)` for an EventSource or a link), `useApi()` from `@/lib/front/use-api` for
+  `stepUp` endpoints. Never a hand-written `/api/...` string. View types come from the contract
+  (`lib/front/types.ts`: add aliases there).
+- **Words**: body n°1's exact French strings, one section per screen in `lib/app-copy.ts`.
+- **Colour**: tokens only; charts use the theme variables (`rgb(var(--c-cyan))`…). Inside
+  `[data-app-shell]` the theme repaints the tokens (Spar-x: dark teal), and `Logo surface="app"`
+  picks the logo for that ground.
+- **Motion**: no count-up, no layout animation; spinners and pulses stop under reduced motion.

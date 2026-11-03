@@ -10,7 +10,9 @@
  * only adding a `<key>.ts` config file that satisfies this interface.
  */
 
-export type BrandKey = 'phantera' | 'sparx'
+import type { BrandKey } from './keys.generated'
+
+export type { BrandKey }
 
 /** Visual mode drives the token set applied in P2 (dark neon vs light editorial). */
 export type BrandMode = 'dark' | 'light'
@@ -83,7 +85,7 @@ export interface BrandConfig {
   url: string
   supportEmail: string
   /** UI language of the brand deployment. */
-  locale: 'en' | 'fr'
+  locale: 'fr' | 'en'
   mode: BrandMode
   colors: BrandColors
   legal: BrandLegal

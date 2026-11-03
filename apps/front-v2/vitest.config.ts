@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitest/config'
 import path from 'node:path'
-import { existsSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 
 const LIB_DIRS = [path.resolve(__dirname, 'lib'), path.resolve(__dirname, '../api/lib')]
 const EXTS = ['', '.ts', '.tsx', '/index.ts', '/index.tsx']
@@ -8,7 +8,7 @@ const EXTS = ['', '.ts', '.tsx', '/index.ts', '/index.tsx']
 function resolveLib(source: string): string | null {
   for (const dir of LIB_DIRS) for (const ext of EXTS) {
     const file = path.join(dir, source + ext)
-    if (existsSync(file) && !file.endsWith(path.sep)) return file
+    if (existsSync(file) && statSync(file).isFile()) return file
   }
   return null
 }

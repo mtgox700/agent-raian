@@ -9,8 +9,7 @@
  */
 
 import { z } from 'zod'
-import phantera from '../themes/phantera.json'
-import sparx from '../themes/sparx.json'
+import { themeData } from './registry.generated'
 
 const CssVars = z.record(z.string().regex(/^--[\w-]+$/), z.string().min(1))
 
@@ -24,6 +23,8 @@ export const Theme = z.object({
   $schema: z.string().optional(),
   key: z.string().regex(/^[a-z][a-z0-9-]*$/),
   name: z.string().min(1),
+  /** The brand served when NEXT_PUBLIC_BRAND is unset (exactly one theme). */
+  default: z.boolean().optional(),
   mode: z.enum(['dark', 'light']),
   /** Mode of the dashboard when it differs from the site. */
   appShellMode: z.enum(['dark', 'light']).optional(),
@@ -46,7 +47,7 @@ export const Theme = z.object({
 export type Theme = z.infer<typeof Theme>
 
 /** The first theme is the default: its site variables also apply on :root. */
-export const themes: Theme[] = [phantera, sparx].map((t) => Theme.parse(t))
+export const themes: Theme[] = themeData.map((t) => Theme.parse(t))
 
 export const DEFAULT_THEME = themes[0].key
 

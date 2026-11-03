@@ -73,9 +73,11 @@ jobs:
         working-directory: apps/api
         run: npx prisma generate
 
-      - name: Themes are compiled
+      - name: Brand registries and themes are generated
         working-directory: .
-        run: npm run check --workspace=@phantera/themes
+        run: |
+          node scripts/sync-brands.mjs --check
+          npm run check --workspace=@phantera/themes
 
       - name: Type-check
         run: npx tsc --noEmit

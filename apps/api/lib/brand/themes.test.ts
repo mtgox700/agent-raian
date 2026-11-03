@@ -8,12 +8,12 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { DEFAULT_THEME, themeByKey, themes } from '@phantera/themes'
 import { buildCss } from '@phantera/themes/css'
-import { phanteraBrand } from './phantera'
-import { sparxBrand } from './sparx'
+import { BRAND_KEYS, buildBrand } from './index'
 
 describe('themes', () => {
-  it('one theme per brand config, same keys', () => {
-    expect(themes.map((t) => t.key).sort()).toEqual([phanteraBrand.key, sparxBrand.key].sort())
+  it('one theme per brand, and every brand assembles (theme + identity)', () => {
+    expect(themes.map((t) => t.key).sort()).toEqual([...BRAND_KEYS].sort())
+    for (const key of BRAND_KEYS) expect(buildBrand(key).key).toBe(key)
   })
 
   it('every theme sets every variable of the default theme', () => {

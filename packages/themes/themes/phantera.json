@@ -2,6 +2,7 @@
   "$schema": "../theme.schema.json",
   "key": "phantera",
   "name": "Phantera",
+  "default": true,
   "mode": "dark",
   "domains": [
     "phantera-tn.com",

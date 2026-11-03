@@ -1,9 +1,12 @@
 import { ClerkProvider } from '@clerk/nextjs'
 import { dark } from '@clerk/themes'
 import { frFR } from '@clerk/localizations'
+import { themeByKey } from '@phantera/themes'
 import { brand } from '@/lib/brand'
 import { PostHogIdentify } from '@/components/providers/PostHogIdentify'
 import { SessionRefetch } from '@/components/providers/SessionRefetch'
+
+const theme = themeByKey(brand.key)
 
 /**
  * AuthProviders: Clerk context, scoped to authenticated route groups only.
@@ -26,34 +29,20 @@ export function AuthProviders({ children }: { children: React.ReactNode }) {
       signUpForceRedirectUrl="/onboarding"
       // Clerk's own screens (sign-in, account menu, verification codes) in French.
       localization={frFR}
-      // Clerk widgets follow the brand: Phantera = dark neon theme (legacy
-      // values, unchanged); Spar-x = light editorial (ivory/teal/charcoal).
+      // Clerk widgets follow the brand theme (packages/themes, `auth` palette).
       appearance={{
         ...(brand.mode === 'dark' ? { baseTheme: dark } : {}),
-        variables:
-          brand.mode === 'dark'
-            ? {
-                colorPrimary: brand.colors.primary,
-                colorBackground: '#0B0D13',
-                colorInputBackground: '#050508',
-                colorInputText: '#F4F4F6',
-                colorText: '#F4F4F6',
-                colorTextSecondary: '#8E94A6',
-                colorDanger: '#ef4444',
-                borderRadius: '0.375rem',
-                fontFamily: 'var(--font-inter)',
-              }
-            : {
-                colorPrimary: brand.colors.primary,
-                colorBackground: brand.colors.surface,
-                colorInputBackground: '#FFFFFF',
-                colorInputText: brand.colors.text,
-                colorText: brand.colors.text,
-                colorTextSecondary: brand.colors.textMuted,
-                colorDanger: '#DC2626',
-                borderRadius: '0.5rem',
-                fontFamily: 'var(--font-inter)',
-              },
+        variables: {
+          colorPrimary: brand.colors.primary,
+          colorBackground: theme.auth.background,
+          colorInputBackground: theme.auth.inputBackground,
+          colorInputText: theme.auth.inputText,
+          colorText: theme.auth.text,
+          colorTextSecondary: theme.auth.textSecondary,
+          colorDanger: theme.auth.danger,
+          borderRadius: theme.auth.radius,
+          fontFamily: 'var(--font-inter)',
+        },
       }}
     >
       {/* Identify authenticated Clerk users in PostHog (needs Clerk context) */}

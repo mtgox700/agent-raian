@@ -1,0 +1,214 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "dark",
+        "light"
+      ]
+    },
+    "appShellMode": {
+      "type": "string",
+      "enum": [
+        "dark",
+        "light"
+      ]
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "colors": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "string"
+        },
+        "primaryDeep": {
+          "type": "string"
+        },
+        "background": {
+          "type": "string"
+        },
+        "surface": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "textMuted": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary",
+        "primaryDeep",
+        "background",
+        "surface",
+        "text",
+        "textMuted"
+      ],
+      "additionalProperties": false
+    },
+    "auth": {
+      "type": "object",
+      "properties": {
+        "background": {
+          "type": "string"
+        },
+        "inputBackground": {
+          "type": "string"
+        },
+        "inputText": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "textSecondary": {
+          "type": "string"
+        },
+        "danger": {
+          "type": "string"
+        },
+        "radius": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "background",
+        "inputBackground",
+        "inputText",
+        "text",
+        "textSecondary",
+        "danger",
+        "radius"
+      ],
+      "additionalProperties": false
+    },
+    "vars": {
+      "type": "object",
+      "properties": {
+        "site": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^--[\\w-]+$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "app": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^--[\\w-]+$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "site"
+      ],
+      "additionalProperties": false
+    },
+    "textTiers": {
+      "type": "object",
+      "properties": {
+        "site": {
+          "type": "object",
+          "properties": {
+            "rgb": {
+              "type": "string",
+              "pattern": "^\\d{1,3}, \\d{1,3}, \\d{1,3}$"
+            },
+            "alphas": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 3,
+              "maxItems": 3
+            }
+          },
+          "required": [
+            "rgb",
+            "alphas"
+          ],
+          "additionalProperties": false
+        },
+        "app": {
+          "type": "object",
+          "properties": {
+            "rgb": {
+              "type": "string",
+              "pattern": "^\\d{1,3}, \\d{1,3}, \\d{1,3}$"
+            },
+            "alphas": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "items": false,
+              "minItems": 3,
+              "maxItems": 3
+            }
+          },
+          "required": [
+            "rgb",
+            "alphas"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "key",
+    "name",
+    "mode",
+    "domains",
+    "colors",
+    "auth",
+    "vars"
+  ],
+  "additionalProperties": false
+}

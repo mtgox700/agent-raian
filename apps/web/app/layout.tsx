@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
+import './themes.generated.css'
 import { StructuredData } from '@/components/seo/StructuredData'
 import { softwareAppSchema, organizationSchema } from '@/lib/seo/structured-data'
 import { cn } from '@/lib/utils'
@@ -133,8 +134,7 @@ export default function RootLayout({
   return (
     <html
       lang={brand.locale}
-      // Drives the per-brand CSS variables in globals.css (see :root /
-      // [data-brand='sparx']): the theme engine for the white-label build.
+      // Selects the brand's CSS variables (packages/themes → themes.generated.css).
       data-brand={brand.key}
       className={cn(syne.variable, inter.variable, mono.variable, playfair.variable)}
     >

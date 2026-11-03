@@ -1,0 +1,23 @@
+{
+  "name": "@phantera/themes",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Paint of each body: one JSON per brand (CSS variables per scope), compiled to CSS. No code per brand.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./css": "./src/css.ts"
+  },
+  "scripts": {
+    "build": "tsx scripts/build-css.ts",
+    "check": "tsx scripts/build-css.ts --check"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}

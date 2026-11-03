@@ -25,10 +25,14 @@
 
 ---
 
-## Phase 0 : Mise en production du châssis actuel (1 semaine)
+## Phase 0 : Châssis opérationnel (1 semaine)
 
-But : une base saine et en ligne avant de démonter quoi que ce soit.
+But : une base saine avant de démonter quoi que ce soit. **Local fait** (2026-11-03) : `bash scripts/dev-setup.sh`
+(Postgres via `docker-compose.yml` ou `DATABASE_URL`, `.env.local` généré, bootstrap ou migrations, idempotent) ;
+dev server vérifié (`/` 200, `/api/health` 200, `/dashboard` → connexion, API protégée 401), build de production OK.
+La mise en production est reportée à la fin, comme décidé.
 
+- [x] Environnement local reproductible (`scripts/dev-setup.sh`)
 - [ ] Base Postgres prod (Neon UE) + `npm run db:bootstrap`
 - [ ] Projet Vercel, variables (`scripts/vercel-env-setup.sh`), intégration Inngest
 - [ ] Webhooks Clerk, Stripe, Resend, Unipile, inbound-email
@@ -40,11 +44,14 @@ But : une base saine et en ligne avant de démonter quoi que ce soit.
 
 But : rendre le contrat explicite et contrôlé.
 
-- [ ] Inventaire de ce que chaque écran consomme (routes, actions, données de pages serveur)
-- [ ] `packages/contract/openapi.yaml` couvrant les routes utilisées par le front (schémas zod → OpenAPI)
-- [ ] `packages/sdk` généré (client typé), jamais édité à la main
-- [ ] CI : génération vérifiée + détection des changements cassants (`oasdiff`)
-- [ ] Test de garde : une PR « front » qui modifie `lib/`, `app/api/` ou `prisma/` échoue
+**Fait** (2026-11-03) : 86 opérations sur 71 chemins, toutes les routes non-infrastructure couvertes.
+
+- [x] Inventaire de ce que le front consomme (test : toute URL `/api` du front doit être au contrat)
+- [x] `packages/contract` (zod, source de vérité) → `openapi.json` (OpenAPI 3.1 généré)
+- [x] `packages/sdk` : client typé dérivé du contrat, validation des entrées, contrôle des réponses en dev
+- [x] CI : `openapi.json` à jour + changements cassants (`oasdiff`, label `api-breaking` pour assumer)
+- [x] Garde : une PR front (`front/*` ou label `front`) qui touche `app/api`, `lib/`, `prisma/` ou le contrat échoue
+- [ ] Reste : 3 formes encore `z.unknown()` (`TODO(contract)`) ; les 3 server actions entrent au contrat en phase 2
 
 **Terminé quand** : le SDK couvre 100 % des appels du front actuel et la CI bloque toute dérive.
 

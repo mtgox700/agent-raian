@@ -23,6 +23,8 @@
     "@clerk/nextjs": "^6.39.2",
     "@clerk/themes": "^2.4.57",
     "@gsap/react": "^2.1.2",
+    "@phantera/contract": "*",
+    "@phantera/sdk": "*",
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^6.19.3",
     "@radix-ui/react-slot": "^1.1.0",
@@ -76,6 +78,7 @@
     "eslint-config-next": "^16.4.2",
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.6",
+    "tsx": "^4.23.15",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.71.2"
   }

@@ -1,0 +1,66 @@
+name: Contract
+
+# API contract between the back (chassis) and the fronts (bodies):
+#   - openapi.json regenerated and committed;
+#   - no breaking change against the base branch unless the PR is labelled `api-breaking`;
+#   - a front PR (branch front/* or label `front`) does not touch the chassis.
+# Conformance (contract <-> route handlers <-> front URLs) runs in CI's vitest step.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  openapi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Type-check contract and SDK
+        run: |
+          npx tsc --noEmit -p packages/contract
+          npx tsc --noEmit -p packages/sdk
+
+      - name: openapi.json is up to date
+        run: npm run openapi:check --workspace=@phantera/contract
+
+      - name: No breaking change
+        if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'api-breaking')
+        run: |
+          if git show "origin/${{ github.base_ref }}:packages/contract/openapi.json" > /tmp/base-openapi.json 2>/dev/null; then
+            docker run --rm -v /tmp:/base -v "$PWD/packages/contract:/head" tufin/oasdiff:v1.35.0 \
+              breaking /base/base-openapi.json /head/openapi.json --fail-on ERR
+          else
+            echo "No contract on the base branch yet: nothing to compare."
+          fi
+
+  front-boundary:
+    if: github.event_name == 'pull_request' && (startsWith(github.head_ref, 'front/') || contains(github.event.pull_request.labels.*.name, 'front'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Front PR does not touch the chassis
+        run: node scripts/check-front-boundary.mjs "origin/${{ github.base_ref }}"

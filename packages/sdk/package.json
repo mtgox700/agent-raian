@@ -1,0 +1,14 @@
+{
+  "name": "@phantera/sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Typed client for the Phantera API, derived from @phantera/contract. Never edited per endpoint.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@phantera/contract": "*",
+    "zod": "^4.6.7"
+  }
+}

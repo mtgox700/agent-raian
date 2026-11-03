@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@sentry/nextjs": "^10.76.2",
-    "posthog-node": "^5.56.1"
+    "posthog-node": "^5.61.1"
   },
   "overrides": {
     "inngest": {

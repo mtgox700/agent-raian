@@ -1,0 +1,21 @@
+version: 2
+# Weekly dependency updates. Security updates are opened as soon as an
+# advisory is published (Dependabot security updates, repository setting).
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Patches and minors together: one PR to review, not twenty.
+      minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels: [dependencies]

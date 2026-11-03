@@ -1,0 +1,19 @@
+{
+  "_comment": "High/critical advisories on production dependencies accepted for a while, each with why it is not reachable here. scripts/check-audit.mjs fails the build on any advisory not listed, and on any allowance past its expiry. Reviewed 2026-10-16 (E1 lot B).",
+  "allow": [
+    {
+      "advisory": "GHSA-45rx-2jwx-cxfr",
+      "package": "@opentelemetry/propagator-jaeger (via inngest > @opentelemetry/auto-instrumentations-node > @opentelemetry/sdk-node)",
+      "reason": "DoS in JaegerPropagator on a malformed header. The Jaeger propagator only runs when OTEL_PROPAGATORS selects it; Phantera sets no OTEL_* variable (default: tracecontext,baggage). The fixed version (2.9+) is outside the range Inngest's SDK pins; an npm override leaves an invalid tree.",
+      "revisit": "Update inngest when it ships @opentelemetry/sdk-node >= 0.220.",
+      "expires": "2027-01-15"
+    },
+    {
+      "advisory": "GHSA-ggr8-5vv4-36mx",
+      "package": "deepmerge-ts (via prisma > @prisma/config)",
+      "reason": "Stack exhaustion when merging recursive object graphs. Used by the Prisma CLI to merge its own configuration at build and migration time; it never receives request data. The only 'fix' npm offers is a downgrade of Prisma to 6.12.",
+      "revisit": "Prisma 7 (deepmerge-ts 8).",
+      "expires": "2027-01-15"
+    }
+  ]
+}

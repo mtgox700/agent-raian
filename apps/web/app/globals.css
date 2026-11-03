@@ -1,0 +1,853 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Fonts are injected via next/font — NO @import Google Fonts ─── */
+
+/* ─── Brand CSS variables ────────────────────────────────────────────
+   :root holds the PHANTERA (dark neon) values — the default brand.
+   [data-brand='sparx'] overrides with the Spar-x editorial-light charter
+   (teal #006D71 / ivory #F5F3EE — extracted from the official logo SVGs).
+   The attribute is set on <html> from lib/brand in app/layout.tsx.
+   Every rule below consumes these vars — never hardcode a brand color. */
+:root {
+  --brand-primary: #00d4ff;
+  --brand-primary-deep: #0077a8;
+  --brand-primary-rgb: 0, 212, 255;
+  --brand-primary-deep-rgb: 0, 119, 168;
+  --bg-base: #050508;
+  --text-base: #f4f4f6;
+  /* Foreground RGB — used for "light-on-dark" alpha effects (borders, dots). */
+  --fg-rgb: 244, 244, 246;
+  /* Glass surface RGB (cards with backdrop blur). */
+  --surface-glass-rgb: 11, 13, 19;
+  --bg-base-rgb: 5, 5, 8;
+  --scroll-thumb: #1e2330;
+  /* Legends League motion: one curve for every marketing reveal. */
+  --ease-signal: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --gold: #f0b429;
+  --gold-deep: #d4960a;
+  --gold-rgb: 240, 180, 41;
+  --ai: #7c3aed;
+  --ai-rgb: 124, 58, 237;
+  --brand-bright: #00e5ff;
+  --brand-mid: #00c8f0;
+  --brand-pressed: #0099cc;
+  --brand-glow-rgb: 0, 229, 255;
+  --highlight: #ec4899;
+  --success: #10b981;
+  --success-deep: #059669;
+  --success-fg: #22c55e;
+  --watermark-alpha: 0.022;
+  --auth-card-shadow: 0 0 0 1px rgba(var(--brand-primary-rgb), 0.08), 0 32px 64px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(var(--fg-rgb), 0.04);
+}
+
+[data-brand='sparx'] {
+  --brand-primary: #006d71;
+  --brand-primary-deep: #003b3e;
+  --brand-primary-rgb: 0, 109, 113;
+  --brand-primary-deep-rgb: 0, 59, 62;
+  --bg-base: #f5f3ee;
+  --text-base: #1a1a1a;
+  --fg-rgb: 26, 26, 26;
+  --surface-glass-rgb: 251, 255, 254;
+  --bg-base-rgb: 245, 243, 238;
+  --scroll-thumb: #d9d4c8;
+  /* Bronze darkened (Legends League, review M1): small gold text reaches
+     AA on ivory (5.57:1) and on the off-white card (6.13:1). */
+  --gold: #715f3a;
+  --gold-deep: #665534;
+  --gold-rgb: 113, 95, 58;
+  --ai: #1f6468;
+  --ai-rgb: 31, 100, 104;
+  --brand-bright: #0e8a8f;
+  --brand-mid: #006d71;
+  --brand-pressed: #004f53;
+  --brand-glow-rgb: 0, 109, 113;
+  --highlight: #557f82;
+  --success: #047857;
+  --success-deep: #065f46;
+  --success-fg: #059669;
+  --watermark-alpha: 0.06;
+  --ease-signal: cubic-bezier(0.2, 0.7, 0.1, 1);
+  --auth-card-shadow: 0 0 0 1px rgba(var(--brand-primary-rgb), 0.1), 0 24px 48px rgba(26, 26, 26, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* ─── Tailwind colour engine — RGB triplets (SPACE-separated) ─────────
+   Consumed by tailwind.config.ts as `rgb(var(--c-x) / <alpha-value>)` so
+   every `/NN` opacity modifier keeps working. Three scopes:
+   :root = Phantera (exact legacy hex), sparx = ivory marketing,
+   sparx+app-shell = the Spar-x DASHBOARD dark-teal scheme (founder call:
+   the app runs on a dark, charter-matched ground; marketing stays light).
+   NOTE: legacy single vars above are COMMA-separated (rgba(var(--x-rgb),a));
+   these --c-* are SPACE-separated for the rgb()/<alpha-value> syntax. */
+:root {
+  --c-white: 244 244 246;
+  --c-void: 5 5 8;
+  --c-obsidian: 11 13 19;
+  --c-surface: 17 20 28;
+  --c-surface2: 23 27 37;
+  --c-muted: 142 148 166;
+  --c-border: 30 35 48;
+  --c-cyan-300: 0 255 255;
+  --c-cyan: 0 212 255;
+  --c-cyan-500: 0 170 255;
+  --c-cyan-600: 0 153 204;
+  --c-cyan-700: 0 119 168;
+  --c-gold: 240 180 41;
+  --c-gold-500: 251 188 5;
+  --c-success: 16 185 129;
+  --c-success-fg: 34 197 94;
+  --c-success-deep: 5 150 105;
+  --c-warning: 249 115 22;
+  --c-danger: 239 68 68;
+  --c-ai: 124 58 237;
+  --c-ai-fg: 167 139 250;
+  --c-highlight: 236 72 153;
+}
+
+[data-brand='sparx'] {
+  --c-white: 26 26 26;
+  --c-void: 245 243 238;
+  --c-obsidian: 251 255 254;
+  --c-surface: 239 236 227;
+  --c-surface2: 231 227 216;
+  --c-muted: 69 69 63;
+  --c-border: 226 222 210;
+  --c-cyan-300: 14 138 143;
+  --c-cyan: 0 109 113;
+  --c-cyan-500: 0 93 97;
+  --c-cyan-600: 0 79 83;
+  --c-cyan-700: 0 59 62;
+  --c-gold: 113 95 58;
+  --c-gold-500: 102 85 52;
+  --c-success: 4 120 87;
+  --c-success-fg: 5 150 105;
+  --c-success-deep: 6 95 70;
+  --c-warning: 180 83 9;
+  --c-danger: 220 38 38;
+  --c-ai: 31 100 104;
+  --c-ai-fg: 51 120 124;
+  --c-highlight: 85 127 130;
+}
+
+/* ─── Spar-x DASHBOARD — dark teal app shell ──────────────────────────
+   Deep teal-charcoal ground, off-white type, brightened teal accents —
+   same hue family as the charter, dark-mode value scale. The dashboard
+   components were designed dark-first, so this restores their intended
+   contrast relationships. Applied via data-app-shell on the dashboard
+   layout root. */
+[data-brand='sparx'] [data-app-shell] {
+  --c-white: 242 247 246;
+  --c-void: 12 27 28;
+  --c-obsidian: 17 37 39;
+  --c-surface: 22 48 50;
+  --c-surface2: 27 58 60;
+  --c-muted: 159 181 179;
+  --c-border: 36 73 75;
+  --c-cyan-300: 127 212 216;
+  --c-cyan: 79 191 196;
+  --c-cyan-500: 58 169 174;
+  --c-cyan-600: 46 143 148;
+  --c-cyan-700: 35 118 122;
+  --c-gold: 201 169 97;
+  --c-gold-500: 184 152 80;
+  --c-success: 16 185 129;
+  --c-success-fg: 52 211 153;
+  --c-success-deep: 5 150 105;
+  --c-warning: 245 158 11;
+  --c-danger: 248 113 113;
+  --c-ai: 95 169 173;
+  --c-ai-fg: 127 195 199;
+  --c-highlight: 111 165 168;
+
+  /* Re-anchor the legacy single vars (inline styles) to the dark scheme */
+  --brand-primary: #4fbfc4;
+  --brand-primary-deep: #23767a;
+  --brand-primary-rgb: 79, 191, 196;
+  --brand-primary-deep-rgb: 35, 118, 122;
+  --bg-base: #0c1b1c;
+  --text-base: #f2f7f6;
+  --fg-rgb: 242, 247, 246;
+  --surface-glass-rgb: 17, 37, 39;
+  --bg-base-rgb: 12, 27, 28;
+  --scroll-thumb: #24494b;
+  --gold: #c9a961;
+  --gold-deep: #b89850;
+  --gold-rgb: 201, 169, 97;
+  --ai: #5fa9ad;
+  --ai-rgb: 95, 169, 173;
+  --brand-bright: #7fd4d8;
+  --brand-mid: #4fbfc4;
+  --brand-pressed: #2e8f94;
+  --brand-glow-rgb: 79, 191, 196;
+  --highlight: #6fa5a8;
+  --success: #10b981;
+  --success-deep: #059669;
+  --success-fg: #34d399;
+  --watermark-alpha: 0.03;
+}
+
+/* ─── Spar-x readability overrides ───────────────────────────────────
+   The codebase's body-copy alphas (text-white/35…/65) were tuned for a
+   DARK ground; on ivory the same alphas read as washed-out light gray
+   (founder feedback). Re-anchor them to darker charcoal tiers. Selector
+   specificity (attr + class) beats the utility, no !important needed. */
+[data-brand='sparx'] :is([class*='text-white/25'], [class*='text-white/30'], [class*='text-white/35'], [class*='text-white/40'], [class*='text-white/45']) {
+  color: rgba(26, 26, 26, 0.68);
+}
+[data-brand='sparx'] :is([class*='text-white/50'], [class*='text-white/55'], [class*='text-white/60'], [class*='text-white/65']) {
+  color: rgba(26, 26, 26, 0.8);
+}
+[data-brand='sparx'] :is([class*='text-white/70'], [class*='text-white/75'], [class*='text-white/80']) {
+  color: rgba(26, 26, 26, 0.9);
+}
+/* Inside the dark app shell those charcoal re-anchors would be invisible —
+   restore light-on-dark tiers (matches the original dark-first design). */
+[data-brand='sparx'] [data-app-shell] :is([class*='text-white/25'], [class*='text-white/30'], [class*='text-white/35'], [class*='text-white/40'], [class*='text-white/45']) {
+  color: rgba(242, 247, 246, 0.45);
+}
+[data-brand='sparx'] [data-app-shell] :is([class*='text-white/50'], [class*='text-white/55'], [class*='text-white/60'], [class*='text-white/65']) {
+  color: rgba(242, 247, 246, 0.62);
+}
+[data-brand='sparx'] [data-app-shell] :is([class*='text-white/70'], [class*='text-white/75'], [class*='text-white/80']) {
+  color: rgba(242, 247, 246, 0.8);
+}
+
+/* ─── Base Reset ─── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+  /* Lenis removed (Legends League): native scrolling, smooth only for in-page
+     anchors, and only when the visitor accepts motion. The offset keeps a
+     section title clear of the fixed 64px header. */
+  scroll-padding-top: 80px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  /* Ensure body never pushes html wider than the viewport */
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Prevent any page-level section from causing horizontal bleed */
+main {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* ─── Focus Visible (A11y) ─── */
+*:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Remove outline for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Custom Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--brand-primary-rgb), 0.2);
+}
+
+/* ─── Scrollbar Hide Utility ─── */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background: rgba(var(--brand-primary-rgb), 0.2);
+  color: var(--text-base);
+}
+
+/* ─── Typography Utilities ─── */
+.text-gradient-cyan {
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-white {
+  background: linear-gradient(180deg, var(--text-base) 0%, rgba(var(--fg-rgb), 0.7) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ─── Glow Effects ─── */
+.glow-cyan {
+  box-shadow: 0 0 40px rgba(var(--brand-primary-rgb), 0.25), 0 0 80px rgba(var(--brand-primary-rgb), 0.1);
+}
+
+.glow-cyan-text {
+  text-shadow: 0 0 30px rgba(var(--brand-primary-rgb), 0.5);
+}
+
+/* ─── Glass Card ─── */
+.glass-card {
+  background: rgba(var(--surface-glass-rgb), 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(var(--fg-rgb), 0.06);
+}
+
+/* ─── Dot Grid Background ─── */
+.bg-dot-grid {
+  background-image: radial-gradient(circle, rgba(var(--fg-rgb), 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ─── Gradient Border ─── */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.3), transparent 50%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─── Elite Animations ─── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%) skewX(-20deg); }
+  100% { transform: translateX(300%) skewX(-20deg); }
+}
+@keyframes float-up {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(var(--brand-primary-rgb), 0.2), 0 0 40px rgba(var(--brand-primary-rgb), 0.05); }
+  50%       { box-shadow: 0 0 40px rgba(var(--brand-primary-rgb), 0.45), 0 0 80px rgba(var(--brand-primary-rgb), 0.15); }
+}
+@keyframes border-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes text-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+/* Composited replacements for the former framer infinite loops (about page) */
+@keyframes ring-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%       { transform: scale(1.375); opacity: 0.15; }
+}
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.6); opacity: 0.6; }
+}
+@keyframes blip {
+  0%   { opacity: 0; transform: scale(0); }
+  25%  { opacity: 1; transform: scale(1.4); }
+  60%  { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}
+.animate-float {
+  animation: float-up 4s ease-in-out infinite;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2.5s ease-in-out infinite;
+}
+.animate-text-shimmer {
+  background: linear-gradient(90deg, var(--brand-primary) 0%, var(--text-base) 40%, var(--brand-primary) 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 3s linear infinite;
+}
+
+/* ─── Elite Card ─── */
+.elite-card {
+  background: rgba(var(--surface-glass-rgb), 0.7);
+  border: 1px solid rgba(var(--fg-rgb), 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(var(--fg-rgb), 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+[data-brand='sparx'] .elite-card {
+  /* Light-mode elevation: soft warm shadow instead of deep black. */
+  box-shadow: 0 8px 32px rgba(26, 26, 26, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.elite-card:hover {
+  border-color: rgba(var(--brand-primary-rgb), 0.2);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(var(--brand-primary-rgb), 0.08), inset 0 1px 0 rgba(var(--fg-rgb), 0.06);
+  transform: translateY(-2px);
+}
+[data-brand='sparx'] .elite-card:hover {
+  box-shadow: 0 16px 48px rgba(26, 26, 26, 0.12), 0 0 0 1px rgba(var(--brand-primary-rgb), 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ─── Gradient Border Animated ─── */
+.gradient-border-animated {
+  position: relative;
+  border-radius: inherit;
+}
+.gradient-border-animated::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(var(--brand-primary-rgb), 0.5), transparent 40%, rgba(var(--ai-rgb), 0.3) 70%, transparent);
+  background-size: 200% 200%;
+  animation: border-flow 4s ease infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  pointer-events: none;
+}
+
+/* ─── Noise texture overlay ─── */
+.noise-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.025;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ─── Skip Link ─── */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--brand-primary);
+  color: var(--bg-base);
+  font-weight: 600;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 16px;
+}
+
+/* Campaign wizard: each step fades in, 8px of travel at most (a form, not a slideshow). */
+@keyframes wizard-step-in {
+  from { opacity: 0.01; transform: translateX(8px); }
+  to   { opacity: 1;    transform: none; }
+}
+.wizard-step-in {
+  animation: wizard-step-in 160ms var(--ease-signal) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wizard-step-in { animation: none; }
+}
+
+/* ─── Legends League: the mark's signal ring ──────────────────────────
+   The logo's point emits one ring, once per session (Navbar decides when).
+   transform + opacity only; nothing in reduced motion. */
+.mark-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: mark-ping 1100ms var(--ease-signal) 250ms 1 both;
+}
+@keyframes mark-ping {
+  0%   { transform: scale(1);   opacity: 0.9; }
+  100% { transform: scale(5); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mark-ping { display: none; }
+}
+
+/* The mobile menu is a native <details>: lock the page behind it. */
+html:has(header details[open]) {
+  overflow: hidden;
+}
+
+/* ─── Scenes: start state, play state, end state ─────────────────────────
+   Every scene animation is declared on the element and held PAUSED on its
+   first frame until <ScenePlayer> sets data-play: no flash from the end state
+   back to the start (review M6). Without JavaScript (<noscript> style in the
+   root layout) or with reduced motion, there is no animation at all: the
+   static styles are the END state. */
+.scene:not([data-play]) * {
+  animation-play-state: paused !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene * {
+    animation: none !important;
+  }
+}
+
+/* ─── Legends League scene 1: « Le tri » (components/marketing/MarketSort) ──
+   Static rules = the END state (no JS, reduced motion). [data-play] replays
+   the scene from the start: every animation uses fill-mode `backwards`, so it
+   shows its first keyframe during its delay, then rests on the static style.
+   Timeline (ms): 300-2700 scan crosses the field and each kept account lights
+   as the line reaches its column; 2850-3800 the three best leads line up. */
+.ms-field {
+  background-image: radial-gradient(circle, rgb(var(--c-white)) 1.5px, transparent 2px);
+  background-size: calc(100% / 18) calc(100% / 11);
+}
+.ms-unread {
+  clip-path: inset(0 0 0 100%);
+}
+.ms-scan {
+  opacity: 0;
+  width: 100%;
+  background: transparent;
+  border-left: 1px solid rgb(var(--c-cyan));
+}
+.ms-scan::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -48px;
+  width: 48px;
+  background: linear-gradient(90deg, transparent, rgba(var(--brand-primary-rgb), 0.12));
+}
+.ms-kept {
+  box-shadow: 0 0 0 4px rgba(var(--brand-primary-rgb), 0.16);
+}
+
+.market-sort .ms-unread {
+  animation: ms-read 2400ms linear 300ms backwards;
+}
+.market-sort .ms-scan {
+  animation: ms-sweep 2400ms linear 300ms backwards;
+}
+.market-sort .ms-kept {
+  animation: ms-keep 520ms var(--ease-signal) var(--d) backwards;
+}
+.market-sort .ms-count {
+  animation: ss-fade 400ms var(--ease-signal) 2750ms backwards;
+}
+.market-sort .ms-row {
+  animation: ms-row 520ms var(--ease-signal) calc(2850ms + var(--i) * 140ms) backwards;
+}
+
+@keyframes ms-read {
+  from { clip-path: inset(0 0 0 0); }
+  to   { clip-path: inset(0 0 0 100%); }
+}
+@keyframes ms-sweep {
+  0%   { transform: translateX(0);    opacity: 1; }
+  92%  { transform: translateX(92%);  opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+@keyframes ms-keep {
+  0%   { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  55%  { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1);   opacity: 1; }
+}
+@keyframes ms-row {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ms-live { animation: ms-live 2s ease-in-out infinite; }
+}
+@keyframes ms-live {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+/* ─── Legends League scene 2: « L'arrêt net » (SequenceStop) ─────────────
+   Timeline (ms): 150-1350 the message writes itself line by line and its
+   personal fields light up; 1400 J0 leaves; 1450-2150 the rail reaches J+3;
+   2200 the reply lands in gold; 2700-3300 the remaining steps are cancelled. */
+.ss-field::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(var(--brand-primary-rgb), 0.12);
+  z-index: -1;
+}
+.ss-field { isolation: isolate; }
+.ss-rail { transform-origin: left center; }
+
+.sequence-stop .ss-line {
+  animation: ss-type 520ms steps(26, end) calc(150ms + var(--l) * 380ms) backwards;
+}
+.sequence-stop .ss-field::before {
+  animation: ss-fade 360ms var(--ease-signal) 1250ms backwards;
+}
+.sequence-stop [data-state='sent'] :is(.ss-dot, .ss-state) {
+  animation: ss-pop 420ms var(--ease-signal) 1400ms backwards;
+}
+.sequence-stop .ss-rail {
+  animation: ss-draw 700ms var(--ease-signal) 1450ms backwards;
+}
+.sequence-stop [data-state='replied'] :is(.ss-dot, .ss-state) {
+  animation: ss-pop 420ms var(--ease-signal) 2200ms backwards;
+}
+.sequence-stop .ss-reply {
+  animation: ss-rise 520ms var(--ease-signal) 2250ms backwards;
+}
+.sequence-stop [data-state='stopped'] :is(.ss-state, .ss-strike) {
+  animation: ss-fade 360ms var(--ease-signal) calc(2700ms + (var(--s) - 2) * 260ms) backwards;
+}
+
+@keyframes ss-type {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@keyframes ss-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes ss-pop {
+  0%   { opacity: 0; transform: scale(0.4); }
+  60%  { opacity: 1; transform: scale(1.35); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes ss-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes ss-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ─── Legends League scene 3: « Le relevé » (AnalystAlert) ───────────────
+   Timeline (ms): 300-940 the evidence appears line by line; 1150 what to do;
+   1500 the confirmation opens; 2300 the action is pressed; 2650 its effect. */
+.analyst-alert .aa-line {
+  animation: ss-rise 480ms var(--ease-signal) calc(300ms + var(--l) * 220ms) backwards;
+}
+.analyst-alert .aa-next {
+  animation: ss-fade 420ms var(--ease-signal) 1150ms backwards;
+}
+.analyst-alert .aa-action {
+  animation: ss-rise 520ms var(--ease-signal) 1500ms backwards;
+}
+.analyst-alert .aa-press {
+  animation: aa-press 360ms var(--ease-signal) 2300ms backwards;
+}
+.analyst-alert .aa-effect {
+  animation: ss-rise 520ms var(--ease-signal) 2650ms backwards;
+}
+@keyframes aa-press {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+
+/* ─── Pricing: monthly / annual without JavaScript (components/marketing/Pricing) ── */
+.pricing .price-monthly { display: none; }
+.pricing:has(#cycle-monthly:checked) .price-annual { display: none; }
+.pricing:has(#cycle-monthly:checked) .price-monthly { display: block; }
+
+/* FAQ: the answer settles in when a <details> opens (no JS). */
+@media (prefers-reduced-motion: no-preference) {
+  .faq-item[open] .faq-answer { animation: ss-rise 320ms var(--ease-signal) both; }
+}
+
+/* Syne ships old-style figures by default ("4oo €", "o à 1oo"): the display
+   face always sets lining figures, in marketing and in the dashboard. */
+.font-display {
+  font-feature-settings: 'lnum' 1;
+}
+
+/* ─── Spar-x keeps its own identity (founder decision, 2026-10-25) ──────────
+   The mono « instrument » voice is Phantera's: Spar-x labels stay in Inter, and
+   its editorial serif keeps a natural letter spacing. Attribute + class beats
+   the tracking utilities, so the components need no brand branch. */
+[data-brand='sparx'] .font-mono {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+[data-brand='sparx'] .font-display {
+  letter-spacing: -0.01em;
+}
+
+/* ─── Editorial photographs (components/marketing/EditorialPhoto) ─────────
+   One grade for every photo so they read as one series in the Instrument
+   palette: a little less colour, a little more depth, nothing that fights
+   the cyan. Where the browser supports view timelines, the frame opens as it
+   enters the screen (clip + slow settle of the image); everywhere else, and
+   with reduced motion, the photo is simply there. */
+.photo-grade {
+  filter: saturate(0.72) contrast(1.06) brightness(0.88);
+}
+[data-brand='sparx'] .photo-grade {
+  filter: none;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .photo-frame {
+      animation: photo-open linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+    .photo-frame .photo-grade {
+      animation: photo-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 60%;
+    }
+  }
+}
+@keyframes photo-open {
+  from { clip-path: inset(8% 6% 8% 6% round 10px); }
+  to { clip-path: inset(0 0 0 0 round 10px); }
+}
+@keyframes photo-settle {
+  from { transform: scale(1.12); }
+  to { transform: scale(1); }
+}
+
+/* ─── Dialog and drawer (components/ui/dialog) ───────────────────────────
+   Native <dialog>: a 180 ms fade, the modal rises 8px, the drawer slides
+   in from the right. Nothing moves with reduced motion. */
+/* The page behind an open dialog does not scroll. */
+html:has(dialog.ui-dialog[open]) {
+  overflow: hidden;
+}
+.ui-dialog[open] {
+  animation: ui-dialog-in 180ms var(--ease-signal) both;
+}
+.ui-dialog--drawer[open] {
+  animation-name: ui-drawer-in;
+  animation-duration: 240ms;
+}
+.ui-dialog[open]::backdrop {
+  animation: ui-fade-in 180ms linear both;
+}
+@keyframes ui-dialog-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ui-drawer-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes ui-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+/* Bars that grow once to their value on mount (campaign progress, funnels):
+   transform only, 240 ms, from the start edge; the final box is the real
+   width or height, so nothing is distorted at rest. */
+.ui-grow-x {
+  transform-origin: left center;
+  animation: ui-grow-x 240ms var(--ease-signal) both;
+}
+.ui-grow-y {
+  transform-origin: center bottom;
+  animation: ui-grow-y 240ms var(--ease-signal) both;
+}
+@keyframes ui-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: none; }
+}
+@keyframes ui-grow-y {
+  from { transform: scaleY(0); }
+  to { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-dialog[open],
+  .ui-dialog[open]::backdrop,
+  .ui-grow-x,
+  .ui-grow-y {
+    animation: none;
+  }
+}
+
+/* ─── Product captures (components/marketing/ProductShots) ───────────────
+   Three real screens on a desk: the two behind lean away in perspective and
+   sit dimmer, the front one is flat and sharp. Pointer over the stack lets
+   the side screens come forward a little, so they read as screens, not
+   decoration. Transform and opacity only. */
+.product-shots .product-shot {
+  transition: transform 600ms var(--ease-signal), opacity 600ms var(--ease-signal);
+}
+.product-shot--left {
+  transform: perspective(1600px) rotateY(16deg) scale(0.9);
+  transform-origin: left center;
+  opacity: 0.55;
+}
+.product-shot--right {
+  transform: perspective(1600px) rotateY(-16deg) scale(0.9);
+  transform-origin: right center;
+  opacity: 0.55;
+}
+@media (hover: hover) {
+  .product-shots:hover .product-shot--left {
+    transform: perspective(1600px) rotateY(10deg) scale(0.92) translateX(-2%);
+    opacity: 0.8;
+  }
+  .product-shots:hover .product-shot--right {
+    transform: perspective(1600px) rotateY(-10deg) scale(0.92) translateX(2%);
+    opacity: 0.8;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-shots .product-shot {
+    transition: none;
+  }
+}

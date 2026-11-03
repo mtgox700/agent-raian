@@ -1,0 +1,13 @@
+Contact: mailto:hello@phantera-tn.com
+Expires: 2027-10-15T00:00:00.000Z
+Preferred-Languages: fr, en
+Canonical: https://www.phantera-tn.com/.well-known/security.txt
+Policy: https://www.phantera-tn.com/.well-known/security.txt
+
+# Signalement de vulnérabilité / Vulnerability disclosure
+# Écrivez-nous avant toute publication ; nous répondons sous 5 jours ouvrés.
+# Tests autorisés : votre propre compte uniquement. Interdit : déni de service,
+# ingénierie sociale, accès aux données d’un autre client, envoi d’e-mails à des tiers.
+# Please report privately first; we answer within 5 business days.
+# Allowed: testing your own account only. Not allowed: denial of service, social
+# engineering, accessing another customer’s data, sending mail to third parties.

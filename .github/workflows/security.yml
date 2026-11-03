@@ -1,0 +1,92 @@
+name: Security
+
+# Static analysis, dependency audit, secret scan and SBOM on every pull
+# request and every push to main. Blocking on high severity. No secret is
+# needed: everything runs on the code alone, so it also runs on external PRs.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 4 * * 1' # Mondays: new advisories against unchanged code
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semgrep:
+    name: Static analysis (Semgrep, OWASP + Next.js)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep:1.140.0@sha256:4372a1de903521f9f10f877b6caf15d150d17e1ca592582682c8d02b77cbd4f6
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # The checkout belongs to another user than the container's.
+      - name: Trust the checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      # ERROR = high severity: blocks. Lower findings are printed, not blocking.
+      # Rulesets come from the Semgrep registry at run time (not pinned).
+      - name: Scan
+        run: >
+          semgrep scan --metrics=off --error --severity ERROR
+          --config p/owasp-top-ten --config p/typescript --config p/nextjs --config p/secrets
+          apps/web
+
+  dependencies:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      # npm ci: the lockfile is the truth; a lockfile out of sync fails here.
+      - name: Install (lockfile verified)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      # Production dependencies; high and critical block unless listed, with a
+      # reason and an expiry, in security/audit-allowlist.json.
+      - name: Audit
+        run: |
+          npm audit --omit=dev --json > audit.json || true
+          node scripts/check-audit.mjs audit.json security/audit-allowlist.json
+
+  secrets:
+    name: Secret scan (gitleaks, full history)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Scan the history of the branch
+        run: >
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.24.0@sha256:2bcceac45179b3a91bff11a824d0fb952585b429e54fc928728b1d4d5c3e5176
+          git /repo --redact --exit-code 1
+
+  sbom:
+    name: SBOM (CycloneDX)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Generate
+        run: npx --yes @cyclonedx/cyclonedx-npm@4.0.0 --ignore-npm-errors --omit dev --output-format JSON --output-file sbom.cdx.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sbom-cyclonedx
+          path: sbom.cdx.json
+          retention-days: 90

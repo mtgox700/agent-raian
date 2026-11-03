@@ -1,0 +1,20 @@
+# gitleaks: findings reviewed on 2026-10-16 (E1 lot B) and confirmed false positives.
+# Each line is the exact fingerprint of one finding in history; a new leak is never covered.
+# linkedin-client-id — identifier LINKEDIN_LIMITS, not a credential
+0962d633c55da385afd4bb48bd185e59a6dfa265:apps/web/app/(dashboard)/dashboard/campaigns/actions.ts:linkedin-client-id:11
+# linkedin-client-secret — variable name (isLinkedIn / sendLinkedInMessage), not a credential
+48ee7fe07d29f3c6ea69129870217d30b2f77658:apps/web/components/dashboard/CampaignLaunchDialog.tsx:linkedin-client-secret:34
+# linkedin-client-secret — variable name (isLinkedIn / sendLinkedInMessage), not a credential
+ceb7ae33e7dec2fa5f4f22d3e46433a2f1ef8099:apps/web/lib/multichannel/unipile.test.ts:linkedin-client-secret:2
+# stripe-access-token — Stripe test-mode placeholder in the CI boot env, not a key
+286153ed280b7bf1e07643e25135b58a31e93e5e:.github/workflows/llm-security.yml:stripe-access-token:27
+# curl-auth-header — documentation example with a placeholder token
+8100313ceb20adefaf6cd2379a191981badd8b1d:docs/SECURITY.md:curl-auth-header:82
+# generic-api-key — empty example value in .env.example
+1fc9c5d1423056ad3838d1d9d5bdda8119d2bae4:apps/web/.env.example:generic-api-key:22
+# generic-api-key — empty example value in .env.example
+1fc9c5d1423056ad3838d1d9d5bdda8119d2bae4:apps/web/.env.example:generic-api-key:27
+# stripe-access-token — line 9 of this file in 71ddd49 quoted that placeholder (rewritten since)
+71ddd4907d452d1bb93e9fc87c7ce9f111adb497:.gitleaksignore:stripe-access-token:9
+# linkedin-client-secret — blog slug "sequence-multicanale-b2b-email-linkedin-sms-whatsapp" (photo map), not a credential
+e68f13859583585340e8aaaa58c33741c1f55d9e:apps/web/lib/marketing/photos.ts:linkedin-client-secret:92

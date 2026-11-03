@@ -1,0 +1,66 @@
+name: LLM security (garak red-team)
+
+# Probes the reply classifier for prompt-injection / jailbreaks with NVIDIA garak.
+# Requires repo secrets: OLLAMA_API_KEY (and optionally OLLAMA_BASE_URL/OLLAMA_MODEL).
+# Skips gracefully if OLLAMA_API_KEY is not configured.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1' # Mondays 03:00 UTC
+
+jobs:
+  garak:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      ENABLE_REDTEAM: '1'
+      OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+      OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
+      OLLAMA_MODEL: ${{ secrets.OLLAMA_MODEL }}
+      GARAK_MIN_PASS_RATE: '0.70'
+      # Minimal env so the app boots; real values come from secrets when present.
+      DATABASE_URL: postgresql://u:p@localhost:5432/db
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_placeholder
+      CLERK_SECRET_KEY: sk_test_placeholder
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Guard: require OLLAMA_API_KEY
+        run: |
+          if [ -z "${OLLAMA_API_KEY}" ]; then
+            echo "OLLAMA_API_KEY secret not set: skipping garak scan."
+            exit 0
+          fi
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          cd ../.. && npm ci
+          pip install garak
+
+      - name: Build + start app
+        run: |
+          npx prisma generate
+          npm run build
+          npm run start &
+          npx wait-on http://localhost:3000/api/health || sleep 15
+
+      - name: Run garak scan
+        run: bash security/garak/run_audit.sh ci_audit
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: garak-report
+          path: ~/.local/share/garak/garak_runs/*.report.jsonl
+          if-no-files-found: ignore

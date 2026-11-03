@@ -1,0 +1,948 @@
+// Phantera — Prisma Schema V1.0
+// PostgreSQL via Railway
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum MailboxProvider {
+  GMAIL
+  OUTLOOK
+  SMTP
+}
+
+enum MailboxStatus {
+  CONNECTED
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+enum Plan {
+  FREE
+  STARTER
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  /// Reads everything, writes nothing.
+  VIEWER
+}
+
+enum TargetCompanySize {
+  XS   // 1-10
+  S    // 11-50
+  M    // 51-200
+  L    // 201-1000
+  XL   // 1000+
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum CampaignGoal {
+  LEADS
+  DEMOS
+  SALES
+  AWARENESS
+}
+
+enum EmailTone {
+  PROFESSIONAL
+  CASUAL
+  BOLD
+  CONSULTATIVE
+}
+
+enum LeadSource {
+  AI_PROSPECTING
+  CSV_IMPORT
+  MANUAL
+  APOLLO
+  LINKEDIN
+}
+
+enum LeadScoreBadge {
+  FAST_TRACK  // score >= 80 — envoyer immédiatement
+  NORMAL      // score 50-79 — envoyer avec warming
+  NURTURE     // score 25-49 — garder en base, relancer plus tard
+  SKIP        // score < 25  — ignorer
+  UNSCORED    // pas encore scoré
+}
+
+enum EmailSendStatus {
+  PENDING
+  SENDING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  FAILED
+  /// WhatsApp/SMS step drafted and waiting for the user to send it from their phone.
+  AWAITING_USER
+  /// Step passed over (no phone number, or skipped by the user): the sequence goes on.
+  SKIPPED
+}
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownedWorkspaces Workspace[]
+  workspaces      WorkspaceMember[]
+  campaigns       Campaign[]         @relation("CampaignOwner")
+  mailboxes       ConnectedMailbox[] @relation("MailboxOwner")
+  channels        ConnectedChannel[] @relation("ChannelOwner")
+  analystConversations AnalystConversation[]
+  analystQuestions     AnalystQuestion[]
+  llmUsage             LlmUsage[]
+
+  @@index([clerkId])
+  @@index([email])
+}
+
+model Workspace {
+  id          String  @id @default(cuid())
+  name        String
+  clerkOrgId  String? @unique
+
+  // Owner (creator)
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Billing — plan + Stripe subscription state
+  plan                   Plan     @default(FREE)
+  stripeCustomerId       String?  @unique
+  stripeSubscriptionId   String?  @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+
+  // ICP Basics (collected during onboarding)
+  targetIndustry   String?
+  targetCompanySize TargetCompanySize?
+
+  // Sending domain (email deliverability)
+  sendingDomain String?
+
+  // Pro email signature (Trust Pack) — JSON: { enabled, fullName, role,
+  // company, website, linkedinUrl, logoUrl }. Rendered as a sober Gmail-like
+  // signature appended to sequence emails.
+  emailSignature Json?
+  // Automatic SMS through the workspace's own Brevo account — JSON:
+  // { enabled, sender, apiKeyEnc }. The key is encrypted (lib/security/crypto).
+  smsSettings    Json?
+
+  // Onboarding state
+  onboardingCompleted Boolean @default(false)
+
+  // Team security (E1): every member must have passed a second factor in
+  // their session before a sensitive action (lib/auth/step-up).
+  requireTwoFactor Boolean @default(false)
+
+  // Deletion with 30 days to change one's mind (lib/privacy/workspace-deletion).
+  deletionRequestedAt   DateTime?
+  deletionScheduledFor  DateTime?
+  deletionRequestedById String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members           WorkspaceMember[]
+  campaigns         Campaign[]
+  leads             Lead[]
+  notifications     Notification[]
+  connectedMailboxes ConnectedMailbox[]
+  connectedChannels  ConnectedChannel[]
+  invitations        WorkspaceInvitation[]
+  analystConversations AnalystConversation[]
+  analystQuestions     AnalystQuestion[]
+  llmUsage             LlmUsage[]
+  insights             Insight[]
+
+  @@index([ownerId])
+  @@index([clerkOrgId])
+  @@index([deletionScheduledFor])
+}
+
+// ─── Connected Channel (multichannel via Unipile — LinkedIn / WhatsApp) ──────
+
+enum ChannelProvider {
+  LINKEDIN
+  WHATSAPP
+}
+
+enum ChannelStatus {
+  PENDING      // hosted-auth link generated, waiting for Unipile notify
+  CONNECTED
+  DISCONNECTED
+  ERROR
+}
+
+/// A user-owned messaging channel connected through Unipile's hosted auth.
+/// Mirrors ConnectedMailbox for non-email channels: PENDING row is created
+/// before redirecting to Unipile, then the notify webhook fills
+/// `unipileAccountId` and flips status to CONNECTED.
+model ConnectedChannel {
+  id          String          @id @default(cuid())
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  provider         ChannelProvider
+  unipileAccountId String?  @unique  // set by the notify callback
+  label            String?           // display name from the provider
+  status           ChannelStatus @default(PENDING)
+  lastError        String?       @db.Text
+  isDefault        Boolean       @default(false)
+
+  /// The member whose account this is. Only their campaigns use it, unless
+  /// an admin shares it with the team.
+  ownerUserId    String
+  owner          User    @relation("ChannelOwner", fields: [ownerUserId], references: [id], onDelete: NoAction)
+  sharedWithTeam Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([ownerUserId])
+}
+
+// ─── Connected Mailbox (Sender Identity) ─────────────────────────────────────
+
+model ConnectedMailbox {
+  id          String          @id @default(cuid())
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  provider    MailboxProvider
+  email       String
+  displayName String?
+
+  // AES-256-GCM encrypted — never store plaintext credentials
+  accessTokenEnc  String   @db.Text
+  refreshTokenEnc String?  @db.Text
+  tokenExpiresAt  DateTime?
+
+  // SMTP-only fields
+  smtpHost        String?
+  smtpPort        Int?
+  smtpSecure      Boolean  @default(true)
+  smtpPasswordEnc String?  @db.Text
+
+  status        MailboxStatus @default(CONNECTED)
+  lastSyncError String?       @db.Text
+
+  // Incremental polling cursors — idempotency
+  lastHistoryId String?  // Gmail: history ID for incremental sync
+  lastDeltaLink String?  @db.Text // Microsoft: delta link for incremental sync
+  lastSyncAt    DateTime?
+
+  // Whether this mailbox is the active sender for new campaigns
+  isDefault Boolean @default(false)
+
+  // Smart sending (per mailbox): emails allowed per rolling 24h, optional
+  // warm-up ramp for a brand-new mailbox, and a pause set when the provider
+  // refuses sends (quota / rate limit) so sending resumes on its own later.
+  // lastSendAt is the pacing slot: claimed atomically before each send so two
+  // workers never send from the same mailbox within the minimum gap.
+  dailyCap        Int       @default(50)
+  warmupEnabled   Boolean   @default(false)
+  sendPausedUntil DateTime?
+  lastSendAt      DateTime?
+
+  // Other addresses this mailbox may send as — JSON array of
+  // { email, displayName, source: GMAIL | MANUAL }. Gmail: the verified
+  // « Envoyer en tant que » addresses read from the account. SMTP: addresses
+  // of the mailbox's own domain entered by the user. They share the mailbox's
+  // daily cap and reputation.
+  sendAsAliases   Json?
+  aliasesSyncedAt DateTime?
+
+  /// The member who connected it. Only their campaigns send from it, unless
+  /// an admin shares it with the team.
+  ownerUserId    String
+  owner          User    @relation("MailboxOwner", fields: [ownerUserId], references: [id], onDelete: NoAction)
+  sharedWithTeam Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaigns Campaign[] @relation("CampaignMailbox")
+  emailSends EmailSend[]
+
+  @@unique([workspaceId, email])
+  @@index([workspaceId])
+  @@index([status])
+  @@index([ownerUserId])
+}
+
+// ─── Campaign ─────────────────────────────────────────────────────────────────
+
+model Campaign {
+  id          String         @id @default(cuid())
+  workspaceId String
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  /// The member who runs it: a MEMBER sees and edits only their own campaigns.
+  ownerUserId String
+  owner       User   @relation("CampaignOwner", fields: [ownerUserId], references: [id], onDelete: NoAction)
+
+  name   String
+  status CampaignStatus @default(DRAFT)
+  goal   CampaignGoal   @default(LEADS)
+
+  // ICP targeting
+  targetIndustry    String?
+  targetTitles      String[]
+  targetCompanySizes TargetCompanySize[]
+  targetGeos        String[]
+  excludedDomains   String?
+
+  // AI config
+  tone             EmailTone @default(PROFESSIONAL)
+  valueProposition String?
+  aiModel          String    @default("claude-sonnet-4-5")
+
+  // Leads
+  leadSource     LeadSource @default(AI_PROSPECTING)
+  estimatedLeads Int        @default(0)
+
+  // Stats (updated by jobs)
+  sentCount      Int    @default(0)
+  openCount      Int    @default(0)
+  replyCount     Int    @default(0)
+  convertedCount Int    @default(0)
+
+  // Sender identity — which mailbox to use (null = fallback Resend)
+  connectedMailboxId String?
+  connectedMailbox   ConnectedMailbox? @relation("CampaignMailbox", fields: [connectedMailboxId], references: [id], onDelete: SetNull)
+  /// Alias of that mailbox the campaign sends as (null = the mailbox address).
+  fromAlias          String?
+  /// Set when its mailbox was removed: the campaign cannot restart until the
+  /// user picks a sender again (it must not quietly use another mailbox).
+  senderLostAt       DateTime?
+
+  // Sequence processing observability
+  lastProcessedAt DateTime?  // set by the hourly sequence cron
+  completedAt     DateTime?  // set when all leads exhaust the sequence
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emailSteps   CampaignEmailStep[]
+  leads        Lead[]
+  emailSends   EmailSend[]
+  emailReplies EmailReply[]
+  statusEvents CampaignStatusEvent[]
+  insights     Insight[]
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([workspaceId, ownerUserId])
+}
+
+// ─── Campaign Email Step ──────────────────────────────────────────────────────
+
+enum StepChannel {
+  EMAIL
+  LINKEDIN
+  /// Drafted by Phantera, sent by the user from their own phone.
+  WHATSAPP
+  SMS
+}
+
+model CampaignEmailStep {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  position        Int
+  dayOffset       Int
+  /// Which channel this step goes out on. LINKEDIN steps ignore `subject`
+  /// and are routed through the workspace's connected Unipile account.
+  channel         StepChannel @default(EMAIL)
+  subject         String
+  body            String  @db.Text
+  /// LINKEDIN first-contact ONLY: the ≤300-char variant sent as the note of a
+  /// connection request when the lead is NOT yet a 1st-degree relation.
+  /// `body` stays the full DM used once the invitation is accepted. Null on
+  /// email steps, on follow-ups, and on pre-2026-09 campaigns (which fall back
+  /// to a safely-fitted `body`). See lib/multichannel/linkedin-limits.ts.
+  inviteNote      String? @db.Text
+  isAiGenerated   Boolean @default(true)
+  aiScore         Int?    // self-critique score 0-100
+  aiCritiqueNotes String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emailSends EmailSend[]
+
+  @@index([campaignId])
+  @@index([campaignId, position])
+}
+
+// ─── Lead Pipeline ────────────────────────────────────────────────────────────
+
+/// GlobalLead — Phantera's OWN cross-workspace lead pool.
+///
+/// Every lead fetched (and enriched) from an external provider is upserted
+/// here. Searches serve from this pool FIRST (excluding leads the requesting
+/// workspace already owns), and only the remainder triggers a provider call —
+/// the provider-cost optimizer (founder decision 2026-07-06).
+///
+/// Compliance guards built in:
+///  • `suppressed`      — GDPR erasure / do-not-process flag, honored by every read
+///  • `lastRefreshedAt` — freshness gate (stale B2B data is never served)
+///  • provenance (`source`, `firstSeenAt`, `timesServed`) — full audit trail
+model GlobalLead {
+  id       String  @id @default(cuid())
+  email    String  @unique
+  apolloId String? @unique
+
+  firstName   String
+  lastName    String
+  company     String?
+  title       String?
+  industry    String?
+  linkedinUrl String?
+  website     String?
+  country     String?
+  companySize TargetCompanySize?
+
+  // Enrichment snapshot (so pool hits skip re-enrichment entirely)
+  emailVerified   Boolean @default(false)
+  emailConfidence Int?
+  emailStatus     String?
+  linkedinData    Json?
+
+  // Provenance & lifecycle
+  source          LeadSource @default(APOLLO)
+  suppressed      Boolean    @default(false)
+  timesServed     Int        @default(0)
+  firstSeenAt     DateTime   @default(now())
+  lastRefreshedAt DateTime   @default(now())
+
+  @@index([industry])
+  @@index([country])
+  @@index([companySize])
+  @@index([suppressed, lastRefreshedAt])
+}
+
+model Lead {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  campaignId  String?
+  campaign    Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  // Identity
+  firstName   String
+  lastName    String
+  email       String
+  company     String?
+  title       String?
+  industry    String?
+  linkedinUrl String?
+  website     String?
+  country     String?
+  companySize TargetCompanySize?
+  // Professional phone in international form, digits only ("33612345678").
+  phone       String?
+  phoneSource String?   // MANUAL | APOLLO
+
+  // Source
+  source   LeadSource @default(APOLLO)
+  apolloId String?    // Apollo person ID for dedup
+
+  // AI Score
+  aiScore     Int?           // 0-100
+  scoreBadge  LeadScoreBadge @default(UNSCORED)
+  scoreReason String?        @db.Text
+
+  // Status (matches frontend literals: new/contacted/qualified/converted/lost)
+  status String @default("new")
+
+  // Reply intelligence (populated by Agent 5)
+  lastReplyAt             DateTime?
+  lastReplyClassification String?   // POSITIVE | NEGATIVE | NEUTRAL
+  lastReplySnippet        String?   @db.Text
+  doNotContact            Boolean   @default(false)
+
+  // Conversion timestamps
+  qualifiedAt DateTime?
+  wonAt       DateTime?
+  lostAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  enrichment   LeadEnrichment?
+  emailSends   EmailSend[]
+  emailReplies EmailReply[]
+  touches      LeadTouch[]
+
+  @@unique([workspaceId, email])
+  @@index([workspaceId])
+  @@index([campaignId])
+  @@index([scoreBadge])
+  @@index([workspaceId, status])
+  @@index([workspaceId, lastReplyAt])
+  @@index([doNotContact])
+  @@index([workspaceId, createdAt])
+}
+
+model LeadEnrichment {
+  id     String @id @default(cuid())
+  leadId String @unique
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  emailVerified   Boolean @default(false)
+  emailConfidence Int?    // 0-100 from Hunter.io
+  emailStatus     String? // "valid" | "invalid" | "accept_all" | "unknown"
+  hunterRequestId String?
+  linkedinData    Json?   // Proxycurl payload (optional)
+
+  enrichedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+}
+
+model EmailSend {
+  id          String            @id @default(cuid())
+  leadId      String
+  lead        Lead              @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaignId  String
+  campaign    Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  emailStepId String
+  emailStep   CampaignEmailStep @relation(fields: [emailStepId], references: [id], onDelete: Cascade)
+
+  status          EmailSendStatus @default(PENDING)
+  resendMessageId String?
+  // Gmail/Outlook message ID — used to match inbound replies via In-Reply-To header
+  providerMessageId String?
+  // Gmail thread ID — used for incremental reply detection
+  providerThreadId  String?
+  // Mailbox that actually sent this email (null: Resend shared domain). Used
+  // for the per-mailbox daily cap and warm-up ramp.
+  mailboxId String?
+  mailbox   ConnectedMailbox? @relation(fields: [mailboxId], references: [id], onDelete: SetNull)
+
+  sentAt    DateTime?
+  openedAt  DateTime?
+  clickedAt DateTime?
+
+  errorMessage String?
+  // Failed delivery attempts for this lead and step; send-step gives up at 3.
+  attempts     Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  replies EmailReply[]
+
+  @@unique([leadId, emailStepId])
+  @@index([leadId])
+  @@index([campaignId])
+  @@index([status])
+  @@index([mailboxId, sentAt])
+  @@index([providerMessageId])
+  @@index([providerThreadId])
+  @@index([resendMessageId])
+  @@index([campaignId, status])
+}
+
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole @default(MEMBER)
+  createdAt   DateTime      @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+/// An invitation to join a workspace. The link carries a random token; only
+/// its SHA-256 is stored. Single use, 7 days, valid only for the invited
+/// address. A pending invitation holds a seat of the plan.
+model WorkspaceInvitation {
+  id          String        @id @default(cuid())
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  /// Lowercase.
+  email       String
+  role        WorkspaceRole
+  tokenHash   String        @unique
+  /// No relation: the record outlives an inviter who leaves.
+  invitedByUserId  String
+  expiresAt        DateTime
+  acceptedAt       DateTime?
+  acceptedByUserId String?
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([workspaceId])
+  @@index([email])
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+enum NotificationType {
+  LEAD_REPLIED_POSITIVE
+  LEAD_REPLIED_MEETING
+  LEAD_REPLIED_NEGATIVE
+  LEAD_REPLIED_NEUTRAL
+  LEAD_CLICKED_WHATSAPP
+  MAILBOX_DISCONNECTED
+  MAILBOX_PAUSED
+  CAMPAIGN_COMPLETED
+  QUOTA_WARNING
+  SDR_APPROVAL_NEEDED
+  EXPORT_READY
+  INSIGHT_ALERT
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  type        NotificationType
+  title       String
+  body        String
+  data        Json             @default("{}")
+
+  leadId      String?
+  campaignId  String?
+  /// Meant for one member (their mailbox, their channel). Null: whoever sees
+  /// the campaign it is about, or everyone when it is about no campaign.
+  userId      String?
+
+  readAt      DateTime?
+  createdAt   DateTime         @default(now())
+
+  @@index([workspaceId, readAt, createdAt])
+  @@index([workspaceId, createdAt])
+}
+
+// ─── Reply Tracking (Agent 5) ─────────────────────────────────────────────────
+
+model EmailReply {
+  id          String   @id @default(cuid())
+  emailSendId String
+  emailSend   EmailSend @relation(fields: [emailSendId], references: [id], onDelete: Cascade)
+  campaignId  String
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  receivedAt     DateTime
+  fromEmail      String
+  bodyText       String   @db.Text
+  classification String   // POSITIVE | NEGATIVE | NEUTRAL
+  confidence     Int      // 0-100
+  isProcessed    Boolean  @default(false)
+  processedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([emailSendId])
+  @@index([campaignId])
+  @@index([leadId])
+}
+
+// ─── Lead touch (WhatsApp / SMS sent by the user from their own phone) ─────────
+// Phantera drafts the message and opens the phone app with it prefilled; the
+// user sends it. Nothing is sent automatically to a number that did not opt in.
+model LeadTouch {
+  id          String   @id @default(cuid())
+  workspaceId String
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  campaignId  String?
+  channel     String   // WHATSAPP | SMS
+  body        String   @db.Text
+  /// TODO: drafted by a sequence step, waiting in the "À envoyer" queue.
+  /// SENT: the user opened it on their phone. SKIPPED: passed over.
+  status      String   @default("SENT")
+  /// The sequence step send this message stands for (null for one-off messages).
+  emailSendId String?  @unique
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, status])
+  @@index([leadId])
+}
+
+// ─── Phone reveal (Apollo) ────────────────────────────────────────────────────
+// One paid lookup per lead at most. Apollo answers asynchronously on a webhook;
+// the URL carries a one-time token whose hash is stored here. No relation to
+// Lead on purpose: the row is the record of credits spent and must outlive a
+// deleted lead, or deleting and re-importing would reset the monthly count.
+model PhoneReveal {
+  id          String    @id @default(cuid())
+  workspaceId String
+  leadId      String    @unique
+  apolloId    String
+  /// MANUAL (button on the lead) | SEQUENCE (lead heading to a WhatsApp/SMS step)
+  trigger     String
+  /// PENDING | FOUND | NOT_FOUND | REJECTED (refused by Apollo, not charged, retryable)
+  status      String    @default("PENDING")
+  tokenHash   String    @unique
+  requestId   String?
+  credits     Int?
+  error       String?
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([workspaceId, createdAt])
+  @@index([createdAt])
+}
+
+// ─── Shared rate limits ──────────────────────────────────────────────────────
+/// One counter per window, shared by every server instance
+/// (lib/security/shared-rate-limit). Purged daily once expired.
+model RateLimitWindow {
+  key       String   @id
+  count     Int
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
+
+// ─── Audit log ───────────────────────────────────────────────────────────────
+/// Who did what to the workspace's sensitive settings and data
+/// (lib/audit). Append only: the database refuses UPDATE, and DELETE of rows
+/// younger than 13 months (retention, purged daily). No foreign keys on
+/// purpose: the trail must outlive the member. A deleted workspace's trail
+/// is erased with it (lib/privacy/workspace-deletion), leaving a tombstone.
+model AuditEvent {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  /// Internal User.id; null for the system (Stripe webhook, scheduler).
+  actorUserId  String?
+  /// The actor's e-mail at the time, so the trail reads after they leave.
+  actorLabel   String
+  action       String
+  targetType   String?
+  targetId     String?
+  /// IPv4 /24 or IPv6 /48: enough to tell networks apart, not a person.
+  ipPrefix     String?
+  /// "Chrome · Windows": the browser family, never the raw header.
+  userAgent    String?
+  result       String   @default("SUCCESS")
+  /// Non-sensitive details (old/new role, plan, provider). Never a secret.
+  details      Json?
+  createdAt    DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
+  @@index([createdAt])
+}
+
+// ─── Prospect objections (RGPD art. 21) ──────────────────────────────────────
+/// What is kept of a prospect who objected: a keyed fingerprint of their
+/// address (lib/privacy/opt-out), never the address. `scope` is the
+/// workspace they objected to, or "*" for the shared lead pool.
+model OptOut {
+  id        String   @id @default(cuid())
+  scope     String
+  emailHash String
+  /// UNSUBSCRIBE | COMPLAINT
+  source    String
+  createdAt DateTime @default(now())
+
+  @@unique([scope, emailHash])
+}
+
+// ─── Full workspace exports (RGPD art. 15/20) ────────────────────────────────
+/// A ZIP of the workspace (lib/privacy/workspace-export), built in the
+/// background, kept 7 days then purged by the daily cron.
+model WorkspaceExport {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  requestedById String
+  /// PENDING | READY | FAILED
+  status        String    @default("PENDING")
+  archive       Bytes?
+  sizeBytes     Int?
+  error         String?
+  expiresAt     DateTime
+  createdAt     DateTime  @default(now())
+  completedAt   DateTime?
+
+  @@index([workspaceId, createdAt])
+  @@index([expiresAt])
+}
+
+/// The Analyst (E3): one conversation per question thread, private to the
+/// member who asked. Deleted with the workspace (cascade) or by its author.
+model AnalystConversation {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String
+  title       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  AnalystMessage[]
+
+  @@index([workspaceId, userId, updatedAt])
+}
+
+model AnalystMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  /// user | assistant
+  role           String
+  content        String   @db.Text
+  /// ok | insufficient | refused | error (assistant messages only)
+  status         String?
+  /// Tool results the answer cites, by reference (T1…), for the evidence panel.
+  evidence       Json?
+  latencyMs      Int?
+  createdAt      DateTime @default(now())
+
+  conversation AnalystConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+/// Every paid model call, with its estimated cost: quotas and the founder's
+/// cost view read this table. Never holds prompt or answer text.
+model LlmUsage {
+  id               String   @id @default(cuid())
+  workspaceId      String
+  userId           String?
+  /// analyst.orchestrator | analyst.devil | …
+  task             String
+  model            String
+  inputTokens      Int
+  outputTokens     Int
+  cacheReadTokens  Int      @default(0)
+  cacheWriteTokens Int      @default(0)
+  costMicroUsd     Int
+  createdAt        DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+}
+
+/// The monthly quota's ledger: one row per question, reserved before any
+/// model call under a workspace lock. Deleting a conversation does not
+/// refund it; only the workspace's erasure removes it.
+model AnalystQuestion {
+  id          String   @id @default(cuid())
+  workspaceId String
+  userId      String?
+  /// pending | counted | free (failed before any paid call)
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt])
+}
+
+/// Every change of a campaign's status, written by a database trigger
+/// (migration 20261019090000): the analytics annotate their curves with it.
+model CampaignStatusEvent {
+  id          String          @id @default(cuid())
+  campaignId  String
+  campaign    Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  workspaceId String
+  fromStatus  CampaignStatus?
+  toStatus    CampaignStatus
+  at          DateTime        @default(now())
+
+  @@index([workspaceId, at])
+  @@index([campaignId, at])
+}
+
+enum InsightStatus {
+  OPEN
+  SNOOZED
+  RESOLVED
+}
+
+/// A proactive alert (lib/insights): one row per cause and target, its key.
+/// Seen again: updated, not duplicated. Gone: resolved by the sweep.
+model Insight {
+  id           String        @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  campaignId   String?
+  campaign     Campaign?     @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  key          String
+  kind         String
+  severity     String
+  title        String
+  evidence     Json
+  next         String
+  /// One-click actions this alert offers (lib/insights/actions).
+  actions      String[]      @default([])
+  status       InsightStatus @default(OPEN)
+  snoozedUntil DateTime?
+  openedAt     DateTime      @default(now())
+  lastSeenAt   DateTime      @default(now())
+  resolvedAt   DateTime?
+
+  takenActions InsightAction[]
+
+  @@unique([workspaceId, key])
+  @@index([workspaceId, status])
+  @@index([campaignId])
+}
+
+/// An action taken from an alert, kept to undo it and to follow its effect.
+model InsightAction {
+  id          String    @id @default(cuid())
+  workspaceId String
+  insightId   String
+  insight     Insight   @relation(fields: [insightId], references: [id], onDelete: Cascade)
+  campaignId  String?
+  action      String
+  actorUserId String?
+  /// What was before: enough to undo (the previous sender, the previous status).
+  before      Json
+  createdAt   DateTime  @default(now())
+  revertedAt  DateTime?
+
+  @@index([workspaceId, createdAt])
+  @@index([campaignId, createdAt])
+}

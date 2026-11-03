@@ -1,0 +1,17 @@
+{
+  "rest": {
+    "RestGenerator": {
+      "name": "phantera-reply-classifier",
+      "uri": "http://localhost:3000/api/security/redteam",
+      "method": "post",
+      "headers": {
+        "Content-Type": "application/json",
+        "x-redteam-secret": "REPLACE_WITH_REDTEAM_SECRET_OR_REMOVE"
+      },
+      "req_template_json_object": { "q": "$INPUT" },
+      "response_json": true,
+      "response_json_field": "output",
+      "request_timeout": 60
+    }
+  }
+}

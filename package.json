@@ -1,0 +1,28 @@
+{
+  "name": "phantera",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
+    "start": "npm run start --workspace=apps/web",
+    "lint": "npm run lint --workspace=apps/web",
+    "type-check": "npm run type-check --workspace=apps/web"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.7",
+    "vitest": "^4.1.7"
+  },
+  "dependencies": {
+    "@sentry/nextjs": "^10.76.2",
+    "posthog-node": "^5.56.1"
+  },
+  "overrides": {
+    "inngest": {
+      "zod": "^4.6.7"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+name: CI
+
+# Type-check, tests and lint on every pull request and every push to main.
+# No secret is needed: tests run against mocked providers only.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        working-directory: .
+        run: npm ci --no-audit --no-fund
+
+      - name: Prisma client
+        run: npx prisma generate
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npx vitest run --pool=forks
+
+      - name: Lint
+        run: npx eslint app components lib middleware.ts

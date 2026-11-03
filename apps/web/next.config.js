@@ -54,6 +54,9 @@ const nextConfig = {
     minimumCacheTTL: 31536000,
   },
 
+  // Workspace packages ship TypeScript sources.
+  transpilePackages: ['@phantera/contract', '@phantera/sdk', '@phantera/themes', '@phantera/content'],
+
   compress:        true,
   poweredByHeader: false,
   reactStrictMode: true,

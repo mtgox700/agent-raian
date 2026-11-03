@@ -3,6 +3,7 @@
 // script. The Radix accordion it replaces unmounted closed answers.
 import { brand } from '@/lib/brand'
 import { faqs } from '@/lib/marketing/faq-content'
+import { faqContent } from '@/lib/marketing/content'
 
 export function FAQ() {
   return (
@@ -10,14 +11,14 @@ export function FAQ() {
       <div className="mx-auto grid max-w-[1200px] gap-12 px-5 md:px-8 lg:grid-cols-12 lg:gap-10">
         <div className="lg:col-span-4">
           <h2 id="faq-title" className="font-display text-[clamp(2rem,4.2vw,3rem)] font-semibold leading-[1.05] tracking-[-0.035em] text-white">
-            Questions fréquentes
+            {faqContent.title}
           </h2>
           <p className="mt-4 text-muted">
-            Une autre question ?{' '}
+            {faqContent.intro.before}{' '}
             <a href={`mailto:contact@${brand.domain}`} className="text-white underline decoration-muted underline-offset-4 transition-colors hover:decoration-cyan">
-              Écrivez-nous
+              {faqContent.intro.linkLabel}
             </a>
-            .
+            {faqContent.intro.after}
           </p>
         </div>
 

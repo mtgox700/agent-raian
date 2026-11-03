@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tagline": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "supportEmail": {
+      "type": "string",
+      "format": "email",
+      "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+    },
+    "legal": {
+      "type": "object",
+      "properties": {
+        "companyName": {
+          "type": "string"
+        },
+        "legalForm": {
+          "type": "string"
+        },
+        "siren": {
+          "type": "string"
+        },
+        "vatNumber": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "rcs": {
+          "type": "string"
+        },
+        "representative": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "companyName"
+      ],
+      "additionalProperties": false
+    },
+    "seo": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "titleTemplate": {
+          "type": "string",
+          "format": "includes",
+          "pattern": "%s"
+        },
+        "description": {
+          "type": "string"
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ogTitle": {
+          "type": "string"
+        },
+        "ogDescription": {
+          "type": "string"
+        },
+        "twitterHandle": {
+          "type": "string"
+        },
+        "twitterTitle": {
+          "type": "string"
+        },
+        "twitterDescription": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "titleTemplate",
+        "description",
+        "keywords",
+        "ogTitle",
+        "ogDescription"
+      ],
+      "additionalProperties": false
+    },
+    "cta": {
+      "type": "object",
+      "properties": {
+        "primary": {
+          "type": "string"
+        },
+        "secondary": {
+          "type": "string"
+        },
+        "signIn": {
+          "type": "string"
+        },
+        "getStarted": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "primary",
+        "secondary",
+        "signIn",
+        "getStarted"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "name",
+    "tagline",
+    "description",
+    "domain",
+    "url",
+    "supportEmail",
+    "legal",
+    "seo",
+    "cta"
+  ],
+  "additionalProperties": false
+}

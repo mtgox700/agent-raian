@@ -1,0 +1,35 @@
+{
+  "$schema": "../../../schemas/faq.schema.json",
+  "title": "Questions fréquentes",
+  "intro": {
+    "before": "Une autre question ?",
+    "linkLabel": "Écrivez-nous",
+    "after": "."
+  },
+  "questions": [
+    {
+      "question": "Comment Spar-x trouve-t-il les leads ?",
+      "answer": "Vous décrivez votre client idéal (fonctions, secteurs, tailles d'entreprise, zones géographiques) et nos agents IA interrogent des bases de données B2B de référence pour identifier les décideurs correspondants. Chaque profil est ensuite enrichi et vérifié avant tout contact."
+    },
+    {
+      "question": "Les données sont-elles conformes au RGPD ?",
+      "answer": "Spar-x traite uniquement des données professionnelles. Chaque email contient un lien de désinscription, un prospect qui répond ou se désinscrit n'est plus jamais recontacté, et vous pouvez obtenir l'export ou la suppression de vos données sur simple demande. Nos prestataires et leur localisation sont listés dans la politique de confidentialité."
+    },
+    {
+      "question": "Comment l'IA rédige-t-elle des messages personnalisés ?",
+      "answer": "Notre agent Rédacteur analyse le profil de chaque lead (poste, entreprise, secteur) et génère un message unique. Une boucle d'auto-critique note ensuite chaque message sur 100 et le réécrit jusqu'à dépasser 75/100. Vous relisez et modifiez chaque séquence avant le lancement."
+    },
+    {
+      "question": "Sur quels canaux les séquences sont-elles envoyées ?",
+      "answer": "Email et LinkedIn, depuis vos propres comptes (Gmail, Outlook ou SMTP pour l'email, votre compte LinkedIn pour les messages directs). Des plafonds quotidiens protègent la réputation de vos comptes, et toute séquence s'arrête automatiquement dès que le prospect répond."
+    },
+    {
+      "question": "Quels résultats puis-je attendre ?",
+      "answer": "Cela dépend de votre ciblage et de votre offre : nous ne promettons pas de taux magiques. Ce que la plateforme garantit, c'est la mécanique : des leads vérifiés, des messages relus par une IA exigeante, des relances au bon rythme et un arrêt immédiat à la réponse. Le reste se mesure dans vos statistiques, en toute transparence."
+    },
+    {
+      "question": "Combien de temps prend la mise en route ?",
+      "answer": "Quelques minutes : l'assistant vous guide pour définir votre cible, connecter votre boîte email et lancer votre première campagne. Aucune compétence technique n'est requise."
+    }
+  ]
+}

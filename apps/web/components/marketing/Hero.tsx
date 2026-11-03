@@ -5,14 +5,11 @@ import { ArrowRight } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button-variants'
 import { BrandHeadline, BRAND_EYEBROW, BRAND_LEAD } from './BrandHeadline'
 import { MarketSort } from './scenes/MarketSort'
+import { landing } from '@/lib/marketing/content'
 
 // Verifiable product facts only (Reality Lock). "Conforme RGPD" stays off
 // until the founder settles that claim (STATE.md, 2026-10-10).
-const guarantees = [
-  'Sans carte bancaire',
-  'Formule gratuite, sans limite de durée',
-  'Annulable à tout moment',
-]
+const { guarantees, primaryCta, secondaryCta } = landing.hero
 
 export function Hero() {
   return (
@@ -32,11 +29,11 @@ export function Hero() {
 
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link href="/sign-up" className={buttonVariants({ size: 'lg', className: 'group gap-2' })}>
-              Commencer gratuitement
+              {primaryCta}
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
             </Link>
             <a href="#how-it-works" className={buttonVariants({ size: 'lg', variant: 'outline' })}>
-              Voir comment ça marche
+              {secondaryCta}
             </a>
           </div>
 

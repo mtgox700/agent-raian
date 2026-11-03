@@ -5,12 +5,9 @@ import { ArrowRight } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button-variants'
 import { brand } from '@/lib/brand'
 import { EditorialPhoto } from './EditorialPhoto'
+import { landing } from '@/lib/marketing/content'
 
-const perks = [
-  'Formule gratuite, sans limite de durée',
-  'Sans carte bancaire',
-  'Annulable à tout moment',
-]
+const { title, lead, primaryCta, secondaryCta, perks } = landing.contact
 
 export function Contact() {
   return (
@@ -18,18 +15,18 @@ export function Contact() {
       <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 md:grid-cols-12 md:gap-10 md:px-8">
         <div className="md:col-span-7">
         <h2 id="contact-title" className="max-w-[52rem] font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-white">
-          Lancez votre première campagne aujourd&apos;hui.
+          {title}
         </h2>
         <p className="mt-6 max-w-[36rem] text-lg leading-relaxed text-muted">
-          {`${brand.name} trouve vos prospects, écrit vos messages et vous prévient dès qu’un lead répond.`}
+          {lead}
         </p>
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
           <Link href="/sign-up" className={buttonVariants({ size: 'lg', className: 'group gap-2' })}>
-            Commencer gratuitement
+            {primaryCta}
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
           <a href={`mailto:contact@${brand.domain}`} className={buttonVariants({ size: 'lg', variant: 'outline' })}>
-            Parler à l&apos;équipe
+            {secondaryCta}
           </a>
         </div>
         <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs text-muted">

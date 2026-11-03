@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../schemas/identity.schema.json",
+  "name": "Phantera",
+  "tagline": "Prospectez comme vous aimeriez être prospecté.",
+  "description": "Phantera trouve, enrichit, score et contacte vos clients B2B idéaux grâce à des agents IA autonomes. E-mails vérifiés, messages personnalisés, séquences multicanales e-mail, LinkedIn, SMS et WhatsApp.",
+  "domain": "phantera-tn.com",
+  "url": "https://www.phantera-tn.com",
+  "supportEmail": "privacy@phantera-tn.com",
+  "legal": {
+    "companyName": "Phantera SAS",
+    "legalForm": "SAS"
+  },
+  "seo": {
+    "title": "Phantera | Prospection B2B autonome par IA",
+    "titleTemplate": "%s | Phantera",
+    "description": "Phantera trouve, enrichit, score et contacte vos clients B2B idéaux grâce à des agents IA autonomes. E-mails vérifiés, messages personnalisés, séquences e-mail, LinkedIn, SMS et WhatsApp.",
+    "keywords": [
+      "logiciel de prospection B2B",
+      "outil de prospection LinkedIn",
+      "prospection B2B IA",
+      "cold email automatisé",
+      "automatisation prospection commerciale",
+      "scoring de leads IA",
+      "SDR IA",
+      "alternative Apollo",
+      "alternative Lemlist"
+    ],
+    "ogTitle": "Phantera | Prospectez comme vous aimeriez être prospecté",
+    "ogDescription": "Des agents IA qui prospectent, enrichissent, scorent et contactent vos clients idéaux 24h/24.",
+    "twitterHandle": "@phantera_ai",
+    "twitterTitle": "Phantera | Prospection B2B autonome par IA",
+    "twitterDescription": "Des agents IA qui automatisent toute votre prospection B2B."
+  },
+  "cta": {
+    "primary": "Commencer gratuitement",
+    "secondary": "Voir la démo",
+    "signIn": "Se connecter",
+    "getStarted": "Commencer"
+  }
+}

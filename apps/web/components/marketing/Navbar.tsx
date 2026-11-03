@@ -4,23 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { BrandLogoNav } from '@/components/brand/BrandLogo'
-import { brand } from '@/lib/brand'
+import { navigation } from '@/lib/marketing/content'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/components/ui/button'
 
-interface NavLink {
-  label: string
-  /** Home sections are written '/#id' so they work from every page and without JS. */
-  href: string
-}
-
-const navLinks: NavLink[] = [
-  { label: 'Fonctionnalités',   href: '/#features' },
-  { label: 'Comment ça marche', href: '/#how-it-works' },
-  { label: 'Tarifs',            href: '/#pricing' },
-  { label: 'Blog',              href: '/blog' },
-  { label: 'À propos',          href: '/about' },
-]
+const { links: navLinks, ariaLabel, menuAriaLabel, signIn, getStarted } = navigation.navbar
 
 const PING_KEY = 'phantera:mark-ping'
 
@@ -84,8 +72,8 @@ export function Navbar() {
           would become the containing block of the fixed mobile sheet. It is
           always there, so text never runs under a clear bar before hydration. */}
       <div className="absolute inset-0 -z-10 bg-void/80 backdrop-blur-md" aria-hidden="true" />
-      <nav className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8" aria-label="Navigation principale">
-        <Link href="/" aria-label={`${brand.name}, accueil`} className="-m-2 rounded-md p-2">
+      <nav className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 md:px-8" aria-label={ariaLabel}>
+        <Link href="/" aria-label={navigation.homeAriaLabel} className="-m-2 rounded-md p-2">
           <BrandLogoNav ping={ping} />
         </Link>
 
@@ -117,13 +105,13 @@ export function Navbar() {
             href="/sign-in"
             className="rounded-md px-3 py-2 text-sm text-muted transition-colors duration-200 hover:text-white"
           >
-            Se connecter
+            {signIn}
           </Link>
           <a
             href="/#pricing"
             className={buttonVariants({ size: 'sm' })}
           >
-            Commencer
+            {getStarted}
           </a>
         </div>
 
@@ -132,7 +120,7 @@ export function Navbar() {
         <details ref={menuRef} className="group md:hidden">
           <summary
             className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-md border border-border text-white [&::-webkit-details-marker]:hidden"
-            aria-label="Menu"
+            aria-label={menuAriaLabel}
           >
             <span className="relative block h-3 w-4" aria-hidden="true">
               <span className="absolute left-0 top-0 h-px w-4 bg-current transition-transform duration-200 ease-signal group-open:top-1.5 group-open:rotate-45" />
@@ -167,14 +155,14 @@ export function Navbar() {
                 onClick={closeMenu}
                 className={buttonVariants({ size: 'lg' })}
               >
-                Commencer
+                {getStarted}
               </a>
               <Link
                 href="/sign-in"
                 onClick={closeMenu}
                 className="flex h-12 items-center justify-center rounded-md border border-border text-base text-white"
               >
-                Se connecter
+                {signIn}
               </Link>
             </div>
           </div>

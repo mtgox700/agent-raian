@@ -1,0 +1,219 @@
+{
+  "$schema": "../../../schemas/landing.schema.json",
+  "hero": {
+    "eyebrow": "Prospection B2B par agents IA",
+    "headline": {
+      "first": "Les autres envoient.",
+      "highlight": "Phantera écoute."
+    },
+    "lead": "Des agents IA trouvent les comptes qui ressemblent à vos clients, écrivent un message que vous signeriez, et arrêtent la séquence dès qu’on vous répond. Par email et sur LinkedIn.",
+    "primaryCta": "Commencer gratuitement",
+    "secondaryCta": "Voir comment ça marche",
+    "guarantees": [
+      "Sans carte bancaire",
+      "Formule gratuite, sans limite de durée",
+      "Annulable à tout moment"
+    ]
+  },
+  "stats": {
+    "ariaLabel": "Ce que fait le produit",
+    "facts": [
+      {
+        "value": "0 à 100",
+        "label": "Une note par lead, selon sa proximité avec votre client idéal"
+      },
+      {
+        "value": "Vos boîtes",
+        "label": "Connectez Gmail, Outlook ou votre SMTP : vos emails partent de votre adresse"
+      },
+      {
+        "value": "Arrêt net",
+        "label": "La séquence s’arrête dès que le prospect répond"
+      },
+      {
+        "value": "0 €",
+        "label": "La formule gratuite, sans carte bancaire ni limite de durée"
+      }
+    ]
+  },
+  "howItWorks": {
+    "titleLines": [
+      "Cinq agents en relais.",
+      "Une séquence qui sait se taire."
+    ],
+    "intro": "Chacun fait une seule chose, et passe la main au suivant. Le dernier écoute : dès qu'un prospect répond, plus rien ne part vers lui.",
+    "agents": [
+      {
+        "name": "Le Prospecteur",
+        "text": "Interroge des bases B2B de référence pour trouver les décideurs qui ressemblent à votre client idéal."
+      },
+      {
+        "name": "L’Enrichisseur",
+        "text": "Trouve l’email professionnel de chaque lead, le vérifie, et complète le profil : poste, entreprise, secteur, LinkedIn."
+      },
+      {
+        "name": "Le Scoreur",
+        "text": "Note chaque lead de 0 à 100 selon sa proximité avec votre cible et sa séniorité. Seuls les leads notés 50 et plus partent."
+      },
+      {
+        "name": "Le Rédacteur",
+        "text": "Écrit chaque étape de la séquence, la fait noter et la réécrit tant qu’elle n’atteint pas 75 sur 100, en trois essais au plus (à partir de la formule Pro). Chaque lead la reçoit avec son prénom, son entreprise et son poste."
+      },
+      {
+        "name": "Le Gestionnaire de réponses",
+        "text": "Classe chaque réponse (intéressé, rendez-vous, refus), met le lead à jour et arrête sa séquence."
+      }
+    ]
+  },
+  "features": {
+    "title": "Ce que l'outil fait vraiment, et ce qu'il vous laisse décider.",
+    "items": [
+      {
+        "title": "Du ciblage au premier message en quelques minutes",
+        "text": "Décrivez votre client idéal et lancez la campagne : les agents trouvent, vérifient et contactent vos prospects."
+      },
+      {
+        "title": "Ciblage précis",
+        "text": "Secteur, fonction, taille et zone. Chaque lead reçoit une note de 0 à 100 selon sa proximité avec votre cible."
+      },
+      {
+        "title": "Emails vérifiés",
+        "text": "L’email professionnel est trouvé puis vérifié avant tout envoi, avec le poste, l’entreprise et le profil LinkedIn."
+      },
+      {
+        "title": "Email et LinkedIn",
+        "text": "Vos séquences alternent emails et messages LinkedIn depuis vos comptes, avec des plafonds quotidiens qui les protègent."
+      },
+      {
+        "title": "Alertes de campagne",
+        "text": "Une campagne qui cale, un segment qui ne répond pas, une boîte en pause : l’alerte le dit avec ses preuves et propose une action, que vous confirmez."
+      },
+      {
+        "title": "Conçu pour le RGPD",
+        "text": "Accès aux boîtes chiffrés au repos, désinscription dans chaque email, prestataires listés dans la politique de confidentialité. Vos données n’entraînent jamais nos modèles."
+      }
+    ],
+    "productShots": [
+      {
+        "src": "/product/accueil.webp",
+        "width": 2880,
+        "height": 1800,
+        "label": "Accueil, à traiter",
+        "alt": "L’accueil du tableau de bord : trois alertes de l’Analyste, chacune avec ses chiffres, son intervalle de confiance et une action à confirmer."
+      },
+      {
+        "src": "/product/campagnes.webp",
+        "width": 2880,
+        "height": 1800,
+        "label": "Campagnes",
+        "alt": "La page Campagnes : ouvertures, taux de réponse et messages envoyés avec leur base, puis une carte par campagne avec son statut."
+      },
+      {
+        "src": "/product/reponses.webp",
+        "width": 2880,
+        "height": 1800,
+        "label": "Réponses",
+        "alt": "La boîte de réponses : chaque réponse classée (positive, négative, neutre), et une réponse ouverte avec le prospect, son entreprise et la campagne."
+      }
+    ]
+  },
+  "signature": {
+    "ariaLabel": "Notre signature",
+    "caption": "Le troisième trait du logo s'arrête court : c'est la séquence qui se tait quand on vous répond. Le point, c'est la réponse."
+  },
+  "pricing": {
+    "title": "Des tarifs simples.",
+    "subtitle": "Sans frais cachés, sans engagement, annulable à tout moment.",
+    "cycleLegend": "Cycle de facturation",
+    "monthly": "Mensuel",
+    "annual": "Annuel",
+    "annualBadge": "−20 %",
+    "recommended": "Recommandé",
+    "freeForever": "pour toujours",
+    "perMonthBilledAnnually": "par mois, facturé à l'année",
+    "savedPerYear": "économisés par an",
+    "perMonthNoCommitment": "par mois, sans engagement",
+    "includedIn": "Inclus dans",
+    "footnote": "Prix en euros hors TVA. Satisfait ou remboursé pendant 14 jours.",
+    "plans": {
+      "free": {
+        "name": "Gratuit",
+        "description": "Explorez la plateforme, sans carte bancaire.",
+        "features": [
+          "100 leads / mois",
+          "1 campagne active",
+          "3 e-mails par séquence",
+          "1 utilisateur",
+          "1 boîte d'envoi",
+          "Statistiques essentielles",
+          "Support communautaire"
+        ],
+        "cta": "Commencer gratuitement"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Pour les fondateurs qui lancent leur prospection.",
+        "features": [
+          "1 000 leads / mois",
+          "Campagnes illimitées",
+          "5 e-mails par séquence",
+          "1 utilisateur",
+          "1 boîte d'envoi",
+          "Génération IA avec auto-critique",
+          "Statistiques avancées",
+          "Export CSV"
+        ],
+        "cta": "Choisir Pro"
+      },
+      "business": {
+        "name": "Business",
+        "description": "Pour les équipes commerciales qui passent à l'échelle.",
+        "features": [
+          "5 000 leads / mois",
+          "Campagnes illimitées",
+          "7 e-mails par séquence",
+          "3 utilisateurs : rôles, chacun ses campagnes",
+          "3 boîtes d'envoi, une boîte ou un alias par campagne",
+          "Génération IA avec auto-critique",
+          "Campagne express : votre site devient une campagne",
+          "Conseiller ICP : l'IA recommande qui cibler",
+          "Boîte de réponses + classification IA",
+          "Séquences e-mail et LinkedIn",
+          "Export des leads chauds pour votre CRM (CSV)",
+          "Support prioritaire par e-mail"
+        ],
+        "cta": "Choisir Business"
+      },
+      "enterprise": {
+        "name": "Entreprise",
+        "description": "Pour les scale-ups qui veulent tout, sans limite.",
+        "features": [
+          "Leads illimités",
+          "Campagnes illimitées",
+          "10 e-mails par séquence",
+          "Utilisateurs illimités : admins, membres, lecture seule",
+          "Boîtes d'envoi illimitées, une boîte ou un alias par campagne",
+          "Génération IA avec auto-critique",
+          "Campagne express + Conseiller ICP IA",
+          "Séquences e-mail et LinkedIn",
+          "Export des leads chauds pour votre CRM (CSV)",
+          "Onboarding accompagné",
+          "Support prioritaire"
+        ],
+        "cta": "Contacter l'équipe"
+      }
+    }
+  },
+  "contact": {
+    "title": "Lancez votre première campagne aujourd'hui.",
+    "lead": "Phantera trouve vos prospects, écrit vos messages et vous prévient dès qu’un lead répond.",
+    "primaryCta": "Commencer gratuitement",
+    "secondaryCta": "Parler à l'équipe",
+    "perks": [
+      "Formule gratuite, sans limite de durée",
+      "Sans carte bancaire",
+      "Annulable à tout moment"
+    ]
+  },
+  "showLatestArticles": true
+}

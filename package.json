@@ -12,7 +12,8 @@
     "start": "npm run start --workspace=apps/web",
     "lint": "npm run lint --workspace=apps/web",
     "type-check": "npm run type-check --workspace=apps/web",
-    "openapi": "npm run openapi --workspace=@phantera/contract"
+    "openapi": "npm run openapi --workspace=@phantera/contract",
+    "themes": "npm run build --workspace=@phantera/themes"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.7",

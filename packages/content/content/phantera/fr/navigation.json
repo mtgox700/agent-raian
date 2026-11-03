@@ -1,0 +1,101 @@
+{
+  "$schema": "../../../schemas/navigation.schema.json",
+  "homeAriaLabel": "Phantera, accueil",
+  "navbar": {
+    "ariaLabel": "Navigation principale",
+    "menuAriaLabel": "Menu",
+    "links": [
+      {
+        "label": "Fonctionnalités",
+        "href": "/#features"
+      },
+      {
+        "label": "Comment ça marche",
+        "href": "/#how-it-works"
+      },
+      {
+        "label": "Tarifs",
+        "href": "/#pricing"
+      },
+      {
+        "label": "Blog",
+        "href": "/blog"
+      },
+      {
+        "label": "À propos",
+        "href": "/about"
+      }
+    ],
+    "signIn": "Se connecter",
+    "getStarted": "Commencer"
+  },
+  "footer": {
+    "columns": [
+      {
+        "title": "Produit",
+        "links": [
+          {
+            "label": "Fonctionnalités",
+            "href": "/#features"
+          },
+          {
+            "label": "Comment ça marche",
+            "href": "/#how-it-works"
+          },
+          {
+            "label": "Tarifs",
+            "href": "/#pricing"
+          },
+          {
+            "label": "Pilote 30 jours",
+            "href": "/pilote"
+          }
+        ]
+      },
+      {
+        "title": "Entreprise",
+        "links": [
+          {
+            "label": "À propos",
+            "href": "/about"
+          },
+          {
+            "label": "Comparatifs",
+            "href": "/alternative"
+          },
+          {
+            "label": "Blog",
+            "href": "/blog"
+          },
+          {
+            "label": "Contact",
+            "href": "mailto:contact@{domain}"
+          }
+        ]
+      },
+      {
+        "title": "Légal",
+        "links": [
+          {
+            "label": "Confidentialité",
+            "href": "/legal/privacy"
+          },
+          {
+            "label": "Conditions d'utilisation",
+            "href": "/legal/terms"
+          },
+          {
+            "label": "Cookies",
+            "href": "/legal/privacy#cookies"
+          },
+          {
+            "label": "RGPD",
+            "href": "/legal/privacy"
+          }
+        ],
+        "withCookieSettings": true
+      }
+    ],
+    "rightsReserved": "Tous droits réservés."
+  }
+}

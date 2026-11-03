@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "homeAriaLabel": {
+      "type": "string",
+      "minLength": 1
+    },
+    "navbar": {
+      "type": "object",
+      "properties": {
+        "ariaLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "menuAriaLabel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "links": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "href": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "label",
+              "href"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "signIn": {
+          "type": "string",
+          "minLength": 1
+        },
+        "getStarted": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "ariaLabel",
+        "menuAriaLabel",
+        "links",
+        "signIn",
+        "getStarted"
+      ],
+      "additionalProperties": false
+    },
+    "footer": {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "href": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "href"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "withCookieSettings": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "title",
+              "links"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "rightsReserved": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "columns",
+        "rightsReserved"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "homeAriaLabel",
+    "navbar",
+    "footer"
+  ],
+  "additionalProperties": false
+}

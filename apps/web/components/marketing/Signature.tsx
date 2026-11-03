@@ -1,14 +1,16 @@
 // Server Component. The breath of the page, where the tiger used to be: the
 // brand's signature, the mark that draws it, and one photograph that says it
 // (a lamp over a handwritten page: a message written with care, for someone).
-import { brand, isSparx } from '@/lib/brand'
+import { brand } from '@/lib/brand'
+import { landing } from '@/lib/marketing/content'
 import { PhanteraMark } from '@/components/brand/PhanteraMark'
 import { EditorialPhoto } from './EditorialPhoto'
 
 export function Signature() {
-  if (isSparx) return null
+  const { signature } = landing
+  if (!signature) return null
   return (
-    <section className="border-b border-border py-24 md:py-32" aria-label="Notre signature">
+    <section className="border-b border-border py-24 md:py-32" aria-label={signature.ariaLabel}>
       <div className="mx-auto grid max-w-[1200px] items-center gap-12 px-5 md:grid-cols-12 md:gap-10 md:px-8">
         <div className="order-2 md:order-1 md:col-span-7">
           <PhanteraMark size={120} cropped className="h-auto w-20 md:w-24" />
@@ -17,8 +19,7 @@ export function Signature() {
               {brand.tagline}
             </p>
             <footer className="mt-6 max-w-[34rem] leading-relaxed text-muted">
-              Le troisième trait du logo s&apos;arrête court : c&apos;est la séquence qui se tait quand on vous répond.
-              Le point, c&apos;est la réponse.
+              {signature.caption}
             </footer>
           </blockquote>
         </div>

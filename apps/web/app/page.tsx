@@ -9,7 +9,7 @@ import { FAQ } from '@/components/marketing/FAQ'
 import { Contact } from '@/components/marketing/Contact'
 import { Footer } from '@/components/marketing/Footer'
 import { LatestArticles } from '@/components/marketing/LatestArticles'
-import { isSparx } from '@/lib/brand'
+import { landing } from '@/lib/marketing/content'
 import { StructuredData } from '@/components/seo/StructuredData'
 import { faqSchema } from '@/lib/seo/structured-data'
 
@@ -32,7 +32,7 @@ export default function HomePage() {
             fictives. La section revient dès les 3 premiers témoignages
             clients réels (DoD du chantier C3). */}
         <FAQ />
-        {!isSparx && <LatestArticles />}
+        {landing.showLatestArticles && <LatestArticles />}
         <Contact />
       </main>
       <Footer />

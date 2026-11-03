@@ -36,84 +36,8 @@ import { CampaignSenderCard }             from '@/components/dashboard/campaigns
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface CampaignDetailData {
-  id:              string
-  name:            string
-  status:          string
-  goal:            string
-  /** Messages sent, every channel (lib/campaigns/metrics: from the rows). */
-  sentCount:       number
-  messagesByChannel: Record<string, number>
-  emailOpenedCount: number
-  /** Leads contacted (≥ 1 message sent) and leads who replied, refusals included. */
-  contactedCount:  number
-  repliedCount:    number
-  /** replied / contacted, with its 95 % Wilson interval. */
-  replyRate:       { rate: number; low: number; high: number }
-  /** Leads of the campaign marked converted. */
-  convertedCount:  number
-  /** Leads in the campaign. */
-  leadCount:       number
-  targetIndustry:  string | null
-  targetTitles:    string[]
-  targetCompanySizes: string[]
-  targetGeos:      string[]
-  createdAt:       string
-  completedAt:     string | null
-  lastProcessedAt: string | null
-  /** Only AI_PROSPECTING campaigns collect leads in the background. */
-  leadSource:      string
-  /** Channel splits: precise "X emails · Y messages LinkedIn" display. */
-  sentEmailCount:     number
-  sentLinkedInCount:  number
-  replyEmailCount:    number
-  replyLinkedInCount: number
-  /** Leads whose sequence stopped automatically because they replied. */
-  stoppedOnReplyCount: number
-}
-
-export interface LeadRow {
-  id:                      string
-  firstName:               string
-  lastName:                string
-  email:                   string
-  company:                 string | null
-  title:                   string | null
-  status:                  string
-  scoreBadge:              string
-  lastReplyAt:             string | null
-  lastReplyClassification: string | null
-  // Lead detail drawer fields (parity with the leads page)
-  industry:                string | null
-  linkedinUrl:             string | null
-  website:                 string | null
-  country:                 string | null
-  companySize:             CompanySize | null
-  source:                  string
-  apolloId:                string | null
-  aiScore:                 number | null
-  scoreReason:             string | null
-  createdAt:               string
-  enrichment: {
-    emailVerified:       boolean
-    emailConfidence:     number | null
-    emailStatus:         string | null
-    headline?:           string | null
-    city?:               string | null
-    companyDescription?: string | null
-    companyLinkedinUrl?: string | null
-    technologies?:       string[]
-  } | null
-}
-
-export interface LeadCounts {
-  total:     number
-  new:       number
-  contacted: number
-  qualified: number
-  converted: number
-  lost:      number
-}
+export type { CampaignDetailData, LeadRow, LeadCounts } from '@/lib/views/campaign'
+import type { CampaignDetailData, LeadRow, LeadCounts } from '@/lib/views/campaign'
 
 interface CampaignDetailClientProps {
   campaign:     CampaignDetailData

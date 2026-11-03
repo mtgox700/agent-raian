@@ -138,4 +138,21 @@ export default [
       '@next/next/no-html-link-for-pages': 'off',
     },
   },
+
+  // Front/back boundary (docs/ROADMAP_HEADLESS.md, phase 2): pages, layouts
+  // and components reach data only through the API contract (@phantera/sdk,
+  // lib/front/server-api). Type-only imports stay allowed.
+  {
+    files: ['app/**/*.tsx', 'components/**/*.{ts,tsx}', 'hooks/**/*.ts'],
+    ignores: ['app/api/**'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['@/lib/db', '@/lib/auth/access', '@/lib/auth/scope', '@/lib/repositories/*', '@/lib/services/*', '@/lib/views/*', '@/lib/actions/*', '@prisma/client'],
+          allowTypeImports: true,
+          message: 'Front code reaches data through the API contract: use @phantera/sdk (client) or loadView from @/lib/front/server-api (server).',
+        }],
+      }],
+    },
+  },
 ]

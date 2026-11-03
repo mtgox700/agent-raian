@@ -22,7 +22,6 @@ const rel = (file: string) => relative(ROOT, file).split(sep).join('/')
 /** Workspace-wide on purpose. */
 const ALLOWED: Record<string, string> = {
   'app/(dashboard)/dashboard/settings/page.tsx':       'plan usage counts the whole workspace',
-  'app/(dashboard)/dashboard/campaigns/actions.ts':    'plan quota and the first-campaign milestone count the whole workspace',
   'app/api/mailbox/debug-sends/route.ts':              'settings.manage only (OWNER, ADMIN see everything)',
   'app/api/leads/diagnose/route.ts':                   'settings.manage only (OWNER, ADMIN see everything)',
   'app/api/mailbox/diagnostic/route.ts':               'settings.manage only (OWNER, ADMIN see everything)',

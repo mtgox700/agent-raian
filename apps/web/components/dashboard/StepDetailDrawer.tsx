@@ -21,11 +21,13 @@ import { useRouter } from 'next/navigation'
 import {
   Mail, Pencil, Check, Clock, Lock, Loader2, AlertCircle, CalendarClock, Minus, Plus,
 } from 'lucide-react'
-import { updateCampaignStep } from '@/app/(dashboard)/dashboard/campaigns/actions'
+import { ApiError, createClient } from '@phantera/sdk'
 import type { StepStats } from '@/lib/services/campaign-stats.service'
 import { Dialog } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
+
+const api = createClient()
 
 const VARIABLES = ['{{firstName}}', '{{lastName}}', '{{company}}', '{{title}}', '{{industry}}']
 
@@ -86,15 +88,21 @@ function useStepEditor(step: StepStats | null) {
   const save = async () => {
     if (!step) return
     setSaving(true); setError(null)
-    const res = await updateCampaignStep({
-      stepId:    step.stepId,
-      subject:   subject.trim(),
-      body:      body.trim(),
-      dayOffset: canDelay ? day : undefined,
-    })
-    setSaving(false)
-    if (res.success) { setEditing(false); router.refresh() }
-    else setError(res.error)
+    try {
+      await api.call('campaigns.updateStep', {
+        params: { stepId: step.stepId },
+        body: {
+          subject:   subject.trim(),
+          body:      body.trim(),
+          dayOffset: canDelay ? day : undefined,
+        },
+      })
+      setSaving(false)
+      setEditing(false); router.refresh()
+    } catch (err) {
+      setSaving(false)
+      setError(err instanceof ApiError ? err.message : 'Échec de la mise à jour')
+    }
   }
 
   const cancel = () => {

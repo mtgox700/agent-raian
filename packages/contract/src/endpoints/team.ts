@@ -42,6 +42,18 @@ export const teamEndpoints = [
     response: Ok,
   }),
 
+  // app/api/invitations/[token]/accept/route.ts
+  endpoint({
+    id: 'team.acceptInvitation',
+    method: 'POST',
+    path: '/api/invitations/[token]/accept',
+    summary: 'Join the workspace of an invitation (HTML form post): 303 to /dashboard with that workspace active; 303 back to /invite/[token]?error=CODE on refusal, to sign-in without a session.',
+    auth: 'session',
+    params: z.object({ token: z.string().min(1) }),
+    response: z.never(),
+    responseKind: 'redirect',
+  }),
+
   // app/api/team/members/[userId]/route.ts
   endpoint({
     id: 'team.changeRole',

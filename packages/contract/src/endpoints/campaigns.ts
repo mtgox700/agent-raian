@@ -5,9 +5,79 @@ import { endpoint, Id } from '../define'
 import { CampaignStatusChange, SendEstimate, SendStatus, StatusAction, StepStats, StepChannel } from '../schemas/campaign'
 
 const params = z.object({ campaignId: Id })
+
+const WizardChannel = z.enum(['email', 'linkedin', 'whatsapp', 'sms'])
+
+/**
+ * The campaign wizard as the front holds it (lib/types/campaign-wizard): the
+ * back maps it to a campaign and validates the result (quota, sequence rules,
+ * lead source, invite-note length), answering 422 with the first issue.
+ * Unknown keys (AI suggestions, product profile…) are accepted and ignored.
+ */
+const CampaignWizardInput = z.object({
+  step1: z.object({
+    name: z.string(),
+    goal: z.enum(['leads', 'demos', 'sales', 'awareness']),
+    industry: z.string(),
+  }),
+  step2: z.object({
+    targetTitles: z.array(z.string()),
+    targetCompanySizes: z.array(z.enum(['XS', 'S', 'M', 'L', 'XL'])),
+    targetGeos: z.array(z.string()),
+    excludedDomains: z.string(),
+  }),
+  step3: z.object({
+    tone: z.enum(['professional', 'casual', 'bold', 'consultative']),
+    valueProposition: z.string(),
+    emailSteps: z.array(z.object({
+      dayOffset: z.number(),
+      channel: WizardChannel.optional(),
+      subject: z.string(),
+      body: z.string(),
+      inviteNote: z.string().optional(),
+      isAiGenerated: z.boolean(),
+    })),
+  }),
+  step4: z.object({
+    leadSource: z.enum(['ai', 'csv', 'manual']),
+    estimatedLeads: z.number(),
+    leadIds: z.array(z.string()).optional(),
+    mailboxId: z.string().nullable().optional(),
+    fromAlias: z.string().nullable().optional(),
+  }),
+})
 const Sent = z.object({ queued: z.number().int(), attempted: z.number().int() })
 
 export const campaignsEndpoints = [
+  // app/api/campaigns/route.ts
+  endpoint({
+    id: 'campaigns.create',
+    method: 'POST',
+    path: '/api/campaigns',
+    summary: 'Create a campaign from the wizard: AI prospecting is queued in the background; on existing leads, step 1 is queued at once.',
+    auth: 'session',
+    body: CampaignWizardInput,
+    response: z.object({ success: z.literal(true), campaignId: Id, workspaceId: Id }),
+  }),
+
+  // app/api/campaigns/steps/[stepId]/route.ts
+  endpoint({
+    id: 'campaigns.updateStep',
+    method: 'PATCH',
+    path: '/api/campaigns/steps/[stepId]',
+    summary: 'Edit a sequence step (subject, body, delay, LinkedIn invite note) while some lead has not received it; step 1 keeps J+0.',
+    auth: 'session',
+    params: z.object({ stepId: Id }),
+    body: z.object({
+      subject: z.string().min(1, 'Sujet requis').max(200).optional(),
+      body: z.string().min(1, 'Corps requis').optional(),
+      dayOffset: z.number().int().min(0).max(60).optional(),
+      // The rendered-length limit of LinkedIn (300) is checked by the back.
+      inviteNote: z.string().optional(),
+    }),
+    response: z.object({ success: z.literal(true) }),
+  }),
+
   // app/api/campaigns/[campaignId]/contact-unverified/route.ts
   endpoint({
     id: 'campaigns.contactUnverified',

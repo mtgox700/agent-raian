@@ -5,11 +5,13 @@ import { ChevronLeft, Rocket, Check, Target, Users, Mail, Zap, ArrowRight, Spark
 import { useCampaignWizard } from '@/lib/hooks/use-campaign-wizard'
 import { useRouter } from 'next/navigation'
 import { CAMPAIGN_GOALS, TONES } from '@/lib/types/campaign-wizard'
-import { createCampaign } from '@/app/(dashboard)/dashboard/campaigns/actions'
+import { ApiError, createClient } from '@phantera/sdk'
 import { track } from '@/lib/analytics/events'
 import { toast } from 'sonner'
 import { SenderPicker, useSenders } from '@/components/dashboard/campaigns/SenderPicker'
 import { Button } from '@/components/ui/button'
+
+const api = createClient()
 
 // ─── Review row ───────────────────────────────────────────────────────────────
 function ReviewRow({
@@ -166,16 +168,18 @@ export function Step5Launch() {
     setSaveError(null)
     setIsSaving(true)
 
-    // createCampaign creates the campaign AND queues the AI prospecting as a
+    // campaigns.create creates the campaign AND queues the AI prospecting as a
     // durable Inngest job (server-side). No client SSE: the pipeline runs in
     // the background, immune to navigation/timeouts, and notifies on completion.
-    const result = await createCampaign(data)
-    setIsSaving(false)
-
-    if (!result.success) {
-      setSaveError(result.error)
+    let result: { campaignId: string }
+    try {
+      result = await api.call('campaigns.create', { body: data })
+    } catch (err) {
+      setIsSaving(false)
+      setSaveError(err instanceof ApiError ? err.message : "La campagne n'a pas pu être créée. Réessayez dans un instant.")
       return
     }
+    setIsSaving(false)
 
     created.current = true
     // Every creation; the first one is recorded server-side (first_campaign_created).

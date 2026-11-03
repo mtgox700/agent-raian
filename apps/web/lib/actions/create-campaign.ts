@@ -1,7 +1,12 @@
-'use server'
+/**
+ * Campaign creation from the wizard (POST /api/campaigns).
+ *
+ * Moved from the former server action app/(dashboard)/dashboard/campaigns/actions.ts.
+ * The route authenticates with Clerk and passes the access check to run
+ * (requireAccess 'campaign.write' on the active workspace); it is called at
+ * the same point as before, after the rate limit and the validation.
+ */
 
-import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/lib/db'
@@ -11,13 +16,10 @@ import { PLAN_CONFIG } from '@/lib/stripe/plans'
 import { limit } from '@/lib/security/shared-rate-limit'
 import { LINKEDIN_LIMITS, inviteNoteFits } from '@/lib/multichannel/linkedin-limits'
 import { inngest, LEAD_PIPELINE_EVENT } from '@/lib/inngest/client'
-import { requireAccess } from '@/lib/auth/access'
-import { campaignScope } from '@/lib/auth/scope'
+import type { AccessResult } from '@/lib/auth/access'
 import { trackServer, flushServerEvents } from '@/lib/analytics/server-events'
-import { SENT_STATUSES } from '@/lib/sequences/types'
 import { queueFirstStep } from '@/lib/sequences/queue-first-step'
 import { kickEmailDrip } from '@/lib/inngest/email-drip'
-import type { CampaignWizardData } from '@/lib/types/campaign-wizard'
 import { toDbChannel } from '@/lib/types/channels'
 import { validateSenderChoice } from '@/lib/email/mailbox-access'
 
@@ -82,9 +84,52 @@ const createCampaignSchema = z.object({
   { message: 'Au moins un titre de poste cible est requis pour la prospection IA', path: ['targetTitles'] },
 )
 
+// ─── Request shape ─────────────────────────────────────────────────────────────
+
+/**
+ * The wizard as the front sends it (CampaignWizardData, the parts read here).
+ * Only the shape is checked: the business rules are createCampaignSchema's,
+ * applied after mapping. Unknown keys are ignored. Mirrors the contract
+ * (packages/contract/src/endpoints/campaigns.ts, campaigns.create).
+ */
+export const campaignWizardSchema = z.object({
+  step1: z.object({
+    name: z.string(),
+    goal: z.enum(['leads', 'demos', 'sales', 'awareness']),
+    industry: z.string(),
+  }),
+  step2: z.object({
+    targetTitles: z.array(z.string()),
+    targetCompanySizes: z.array(z.enum(['XS', 'S', 'M', 'L', 'XL'])),
+    targetGeos: z.array(z.string()),
+    excludedDomains: z.string(),
+  }),
+  step3: z.object({
+    tone: z.enum(['professional', 'casual', 'bold', 'consultative']),
+    valueProposition: z.string(),
+    emailSteps: z.array(z.object({
+      dayOffset: z.number(),
+      channel: z.enum(['email', 'linkedin', 'whatsapp', 'sms']).optional(),
+      subject: z.string(),
+      body: z.string(),
+      inviteNote: z.string().optional(),
+      isAiGenerated: z.boolean(),
+    })),
+  }),
+  step4: z.object({
+    leadSource: z.enum(['ai', 'csv', 'manual']),
+    estimatedLeads: z.number(),
+    leadIds: z.array(z.string()).optional(),
+    mailboxId: z.string().nullable().optional(),
+    fromAlias: z.string().nullable().optional(),
+  }),
+})
+
+export type CampaignWizardInput = z.infer<typeof campaignWizardSchema>
+
 // ─── Map wizard data to DB schema ─────────────────────────────────────────────
 
-function mapWizardToSchema(data: CampaignWizardData) {
+function mapWizardToSchema(data: CampaignWizardInput) {
   const goalMap: Record<string, 'LEADS' | 'DEMOS' | 'SALES' | 'AWARENESS'> = {
     leads: 'LEADS',
     demos: 'DEMOS',
@@ -128,19 +173,23 @@ function mapWizardToSchema(data: CampaignWizardData) {
   }
 }
 
-// ─── Server Action ────────────────────────────────────────────────────────────
+// ─── Create ────────────────────────────────────────────────────────────
+
+export type CreateCampaignResult =
+  | { success: true; campaignId: string; workspaceId: string }
+  | { success: false; error: string; status: number }
 
 export async function createCampaign(
-  wizardData: CampaignWizardData
-): Promise<{ success: true; campaignId: string; workspaceId: string } | { success: false; error: string }> {
-  const { userId: clerkId } = await auth()
-  if (!clerkId) redirect('/sign-in')
+  clerkId: string,
+  wizardData: CampaignWizardInput,
+  authorize: () => Promise<AccessResult>,
+): Promise<CreateCampaignResult> {
 
   // Block rapid double-submit: max 2 campaign creations per 10s per user.
   // Even with UI disable-on-click, a script / network retry can still POST twice.
   const rl = await limit(`user:${clerkId}`, { windowSec: 10, max: 2, scope: 'campaign:create' })
   if (!rl.allowed) {
-    return { success: false, error: 'Trop de tentatives : patientez quelques secondes avant de réessayer.' }
+    return { success: false, error: 'Trop de tentatives : patientez quelques secondes avant de réessayer.', status: 429 }
   }
 
   // Map wizard data to DB-compatible format
@@ -152,16 +201,17 @@ export async function createCampaign(
     return {
       success: false,
       error: parsed.error.issues[0]?.message ?? 'Données de campagne invalides.',
+      status: 422,
     }
   }
 
   try {
     // The active workspace, with the right to create campaigns in it.
-    const access = await requireAccess(clerkId, 'campaign.write')
-    if (!access.ok) return { success: false, error: access.error }
+    const access = await authorize()
+    if (!access.ok) return { success: false, error: access.error, status: access.status }
 
     const workspaceId = access.ctx.workspaceId
-    if (await deletionPending(db, workspaceId)) return { success: false, error: DELETION_PENDING_MESSAGE }
+    if (await deletionPending(db, workspaceId)) return { success: false, error: DELETION_PENDING_MESSAGE, status: 409 }
 
     // ── Plan quota enforcement ───────────────────────────────────────────────
     const campaignQuota = await checkCampaignQuota(workspaceId)
@@ -170,6 +220,7 @@ export async function createCampaign(
       return {
         success: false,
         error: `Limite atteinte : votre plan ${planName} autorise ${campaignQuota.limit} campagne${campaignQuota.limit > 1 ? 's' : ''}. Passez au plan Pro pour des campagnes illimitées.`,
+        status: 402,
       }
     }
 
@@ -183,6 +234,7 @@ export async function createCampaign(
       return {
         success: false,
         error: `Trop d'emails : votre plan autorise ${stepsQuota.limit} email${stepsQuota.limit > 1 ? 's' : ''} par séquence. Passez au plan Pro pour jusqu'à 5 emails.`,
+        status: 402,
       }
     }
     // ────────────────────────────────────────────────────────────────────────
@@ -195,7 +247,7 @@ export async function createCampaign(
       mailboxId: wizardData.step4.mailboxId,
       fromAlias: wizardData.step4.fromAlias,
     })
-    if (!sender.ok) return { success: false, error: sender.error }
+    if (!sender.ok) return { success: false, error: sender.error, status: 422 }
 
     const { emailSteps, leadIds, ...campaignData } = parsed.data
     const fromExistingBase = campaignData.leadSource === 'MANUAL'
@@ -332,6 +384,7 @@ export async function createCampaign(
       return {
         success: false,
         error: 'Limite de campagnes atteinte pour votre plan. Passez à un plan supérieur pour en créer davantage.',
+        status: 402,
       }
     }
     // Serializable conflict (two creates raced): ask the user to retry.
@@ -339,84 +392,11 @@ export async function createCampaign(
       return {
         success: false,
         error: 'Création simultanée détectée : réessayez dans un instant.',
+        status: 409,
       }
     }
     console.error('[createCampaign] failed:', message)
-    return { success: false, error: "La campagne n'a pas pu être créée. Réessayez dans un instant." }
+    return { success: false, error: "La campagne n'a pas pu être créée. Réessayez dans un instant.", status: 500 }
   }
 }
 
-// ─── Edit a campaign email step (only if not yet sent) ─────────────────────────
-
-const updateStepSchema = z.object({
-  stepId:    z.string().min(1),
-  subject:   z.string().min(1, 'Sujet requis').max(200).optional(),
-  body:      z.string().min(1, 'Corps requis').optional(),
-  dayOffset: z.number().int().min(0).max(60).optional(),
-  // LinkedIn connection-request note. Validated on the RENDERED length, since
-  // LinkedIn truncates silently rather than rejecting an oversized note.
-  inviteNote: z.string().refine(inviteNoteFits, {
-    message: `Note d'invitation trop longue (LinkedIn limite à ${LINKEDIN_LIMITS.INVITE_NOTE_MAX} caractères une fois les variables remplacées)`,
-  }).optional(),
-})
-
-export type UpdateStepInput = z.infer<typeof updateStepSchema>
-
-/**
- * Updates a sequence step's subject / body / send-delay. Allowed while some
- * lead has not received it yet; the change applies to those leads only.
- * Step 1 (position 0) keeps J+0.
- */
-export async function updateCampaignStep(
-  input: UpdateStepInput,
-): Promise<{ success: true } | { success: false; error: string }> {
-  const { userId: clerkId } = await auth()
-  if (!clerkId) redirect('/sign-in')
-
-  const parsed = updateStepSchema.safeParse(input)
-  if (!parsed.success) {
-    return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
-  }
-  const { stepId, subject, body, dayOffset, inviteNote } = parsed.data
-
-  // Load step -> campaign -> verify ownership
-  const step = await db.campaignEmailStep.findUnique({
-    where:  { id: stepId },
-    select: { id: true, position: true, campaignId: true, campaign: { select: { workspaceId: true } } },
-  })
-  if (!step) return { success: false, error: 'Étape introuvable' }
-
-  const access = await requireAccess(clerkId, 'campaign.write', { workspaceId: step.campaign.workspaceId })
-  if (!access.ok) return { success: false, error: access.error }
-  // Another member's campaign answers like a missing one.
-  const own = await db.campaign.count({ where: { id: step.campaignId, ...campaignScope(access.ctx) } })
-  if (own === 0) return { success: false, error: 'Étape introuvable' }
-
-  // Queued sends read the step at send time, so an edit reaches every lead
-  // not contacted yet. It is refused only once nobody is left to receive it:
-  // blocking at the first send made a typo unfixable for hundreds of leads.
-  const [alreadySent, stillQueued] = await Promise.all([
-    db.emailSend.count({ where: { emailStepId: stepId, status: { in: [...SENT_STATUSES] } } }),
-    db.emailSend.count({ where: { emailStepId: stepId, status: 'PENDING' } }),
-  ])
-  if (alreadySent > 0 && stillQueued === 0) {
-    return { success: false, error: 'Cet email a déjà été envoyé à tous les leads de la campagne : il ne peut plus être modifié.' }
-  }
-
-  // Step 1 is always immediate (J+0): ignore any dayOffset change for it.
-  const data: { subject?: string; body?: string; dayOffset?: number; inviteNote?: string } = {}
-  if (subject !== undefined)    data.subject = subject
-  if (body !== undefined)       data.body = body
-  if (inviteNote !== undefined) data.inviteNote = inviteNote
-  if (dayOffset !== undefined && step.position > 0) data.dayOffset = dayOffset
-
-  if (Object.keys(data).length === 0) return { success: true }
-
-  try {
-    await db.campaignEmailStep.update({ where: { id: stepId }, data })
-    revalidatePath(`/dashboard/campaigns/${step.campaignId}`)
-    return { success: true }
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Échec de la mise à jour' }
-  }
-}

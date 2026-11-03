@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { auth, currentUser } from '@clerk/nextjs/server'
-import { db } from '@/lib/db'
 import { brand } from '@/lib/brand'
 import { PhanteraMark } from '@/components/brand/PhanteraMark'
-import { readInvitation, TEAM_ERRORS, type TeamError } from '@/lib/team/team.service'
-import { ROLE_LABELS } from '@/lib/team/invitation-link'
-import { acceptInvitationAction } from './actions'
+import { loadView } from '@/lib/front/server-api'
+import { createClient } from '@phantera/sdk'
+
+const api = createClient()
 
 export const metadata: Metadata = {
   title:  'Invitation',
@@ -32,14 +31,16 @@ const secondaryClass = 'inline-flex w-full items-center justify-center rounded-x
 
 /**
  * The invitation page. Public: the token is the key, and joining also needs
- * a signed-in account holding the invited address (see actions.ts).
+ * a signed-in account holding the invited address (POST
+ * /api/invitations/[token]/accept, lib/actions/accept-invitation).
+ * Data: GET /api/views/invite/[token] (lib/views/invite).
  */
 export default async function InvitePage({ params, searchParams }: Props) {
   const { token } = await params
   const { error } = await searchParams
-  const invitation = await readInvitation(db, token)
+  const invitation = await loadView('views.invite', { params: { token }, query: typeof error === 'string' ? { error } : {} })
 
-  if (!invitation) {
+  if (invitation.state === 'invalid') {
     return (
       <Card>
         <h1 className="font-display text-xl font-bold text-white">Invitation expirée ou déjà utilisée</h1>
@@ -49,41 +50,39 @@ export default async function InvitePage({ params, searchParams }: Props) {
     )
   }
 
-  const { userId } = await auth()
-  const user = userId ? await currentUser() : null
-  const verified = (user?.emailAddresses ?? []).filter((e) => e.verification?.status === 'verified').map((e) => e.emailAddress.toLowerCase())
-  const errorMessage = error && error in TEAM_ERRORS ? (TEAM_ERRORS[error as TeamError] || 'Le plan de cet espace n’a plus de place libre : demandez à un admin.') : null
-  const accept = acceptInvitationAction.bind(null, token)
+  const { signedIn, emailVerified, errorMessage } = invitation
+  // A plain form post: the API answers with a 303 to the dashboard, or back here with ?error=.
+  const accept = api.url('team.acceptInvitation', { params: { token } })
 
   return (
     <Card>
       <p className="text-xs font-semibold uppercase tracking-widest text-cyan">Invitation</p>
-      <h1 className="mt-2 font-display text-xl font-bold text-white">Rejoindre l’espace «{' '}{invitation.workspace.name}{' '}»</h1>
+      <h1 className="mt-2 font-display text-xl font-bold text-white">Rejoindre l’espace «{' '}{invitation.workspaceName}{' '}»</h1>
       <p className="mt-3 text-sm text-muted">
-        {invitation.inviterName} vous invite en tant que <strong className="text-white">{ROLE_LABELS[invitation.role].toLowerCase()}</strong>.
+        {invitation.inviterName} vous invite en tant que <strong className="text-white">{invitation.roleLabel.toLowerCase()}</strong>.
         L’invitation est destinée à <strong className="text-white">{invitation.email}</strong>.
       </p>
 
       {errorMessage && <p role="alert" className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{errorMessage}</p>}
 
       <div className="mt-6 space-y-3">
-        {!userId && (
+        {!signedIn && (
           <>
             <a href={`/invite/${token}/start?with=sign-up`} className={buttonClass}>Créer mon compte</a>
             <a href={`/invite/${token}/start?with=sign-in`} className={secondaryClass}>J’ai déjà un compte</a>
           </>
         )}
-        {userId && verified.includes(invitation.email) && (
-          <form action={accept}>
+        {signedIn && emailVerified && (
+          <form method="post" action={accept}>
             <button type="submit" className={buttonClass}>Rejoindre l’espace</button>
           </form>
         )}
-        {userId && !verified.includes(invitation.email) && (
+        {signedIn && !emailVerified && (
           <p className="text-sm text-muted">
             Vous êtes connecté avec une autre adresse. Connectez-vous avec <strong className="text-white">{invitation.email}</strong>, ou ajoutez-la à votre compte, pour rejoindre l’espace.
           </p>
         )}
-        {userId && !verified.includes(invitation.email) && (
+        {signedIn && !emailVerified && (
           <Link href="/dashboard" className={secondaryClass}>Aller à mon tableau de bord</Link>
         )}
       </div>

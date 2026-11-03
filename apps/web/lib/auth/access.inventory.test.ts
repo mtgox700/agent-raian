@@ -62,7 +62,8 @@ function unguardedHandlers(source: string, kind: 'route' | 'action' | 'page'): s
 describe('access inventory', { timeout: 60_000 }, () => {
   it('finds the surfaces it checks', () => {
     expect(routes.length).toBeGreaterThan(60)
-    expect(serverActions.length).toBeGreaterThan(0)
+    // The front reaches the back through the API only: no server action is left.
+    expect(serverActions.map(rel)).toEqual([])
   })
 
   it('every route handler, server action and data page goes through the access layer or is declared public', () => {
@@ -110,7 +111,7 @@ describe('access inventory', { timeout: 60_000 }, () => {
   it('nobody reads workspaces by ownership outside the access layer and first-workspace creation', () => {
     const allowed = new Set([
       'lib/auth/access.ts',
-      'app/(auth)/onboarding/actions.ts',
+      'lib/actions/complete-onboarding.ts',
       'app/(auth)/onboarding/layout.tsx',
       // Account deletion cancels the subscriptions of the workspaces the person is billed for.
       'lib/stripe/cancel-on-delete.ts',

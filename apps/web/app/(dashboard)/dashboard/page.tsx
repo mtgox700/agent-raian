@@ -1,31 +1,16 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import { CommandCenter } from '@/components/dashboard/CommandCenter'
-import { requireAccess } from '@/lib/auth/access'
-import { getDashboardStats } from '@/lib/services/dashboard.service'
+import { loadView } from '@/lib/front/server-api'
 
+/** /dashboard: the command center (data: GET /api/views/dashboard). */
 export default async function DashboardPage() {
-  const { userId } = await auth()
-  if (!userId) redirect('/sign-in')
-
-  const [clerkUser, access] = await Promise.all([
-    currentUser(),
-    requireAccess(userId, 'workspace.read'),
-  ])
-
-  if (!access.ok) redirect('/onboarding')
-  const workspace = access.ctx
-
-  const [stats] = await Promise.all([
-    getDashboardStats(workspace),
-  ])
-
-  const firstName = clerkUser?.firstName ?? 'Agent'
+  const view = await loadView('views.dashboard', {})
+  if ('redirect' in view) redirect(view.redirect)
 
   return (
     <DashboardShell>
-      <CommandCenter firstName={firstName} stats={stats} />
+      <CommandCenter firstName={view.firstName} stats={view.stats} />
     </DashboardShell>
   )
 }

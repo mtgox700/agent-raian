@@ -1,7 +1,11 @@
-'use server'
+/**
+ * First-run setup of the signed-in account (POST /api/onboarding/complete).
+ *
+ * Moved from the former server action app/(auth)/onboarding/actions.ts. The
+ * route authenticates with Clerk and hands the Clerk id here.
+ */
 
-import { auth, currentUser } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
+import { currentUser } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/lib/db'
@@ -9,7 +13,7 @@ import { verifiedPrimaryEmail } from '@/lib/auth/verified-email'
 import { trackServer, flushServerEvents } from '@/lib/analytics/server-events'
 
 // ─── Validation schema ────────────────────────────────────────────────────────
-const onboardingSchema = z.object({
+export const onboardingSchema = z.object({
   workspaceName: z
     .string()
     .min(2, 'Workspace name must be at least 2 characters')
@@ -29,20 +33,18 @@ const onboardingSchema = z.object({
 
 export type OnboardingInput = z.infer<typeof onboardingSchema>
 
-// ─── Server Action ────────────────────────────────────────────────────────────
-export async function completeOnboarding(input: OnboardingInput) {
-  const { userId: clerkId } = await auth()
+export type OnboardingResult =
+  | { success: true }
+  | { success: false; error: string; status: number }
 
-  if (!clerkId) {
-    redirect('/sign-in')
-  }
-
+export async function completeOnboarding(clerkId: string, input: unknown): Promise<OnboardingResult> {
   // Validate input
   const parsed = onboardingSchema.safeParse(input)
   if (!parsed.success) {
     return {
       success: false as const,
       error: parsed.error.issues[0]?.message ?? 'Validation failed',
+      status: 422,
     }
   }
 
@@ -54,7 +56,7 @@ export async function completeOnboarding(input: OnboardingInput) {
     const clerkUser = await currentUser()
     const email = verifiedPrimaryEmail(clerkUser)
     if (!email) {
-      return { success: false, error: 'Vérifiez d’abord votre adresse e-mail, puis réessayez.' }
+      return { success: false, error: 'Vérifiez d’abord votre adresse e-mail, puis réessayez.', status: 403 }
     }
 
     // An address already held by another account is never moved to this one
@@ -63,7 +65,7 @@ export async function completeOnboarding(input: OnboardingInput) {
     const existingByEmail = await db.user.findUnique({ where: { email } })
     if (existingByEmail && existingByEmail.clerkId !== clerkId) {
       console.warn('[onboarding] address already linked to another account; not relinked')
-      return { success: false, error: 'Cette adresse est déjà liée à un autre compte Phantera. Contactez le support.' }
+      return { success: false, error: 'Cette adresse est déjà liée à un autre compte Phantera. Contactez le support.', status: 409 }
     }
 
     const user = await db.user.upsert({
@@ -113,6 +115,7 @@ export async function completeOnboarding(input: OnboardingInput) {
     return {
       success: false as const,
       error: 'Failed to save workspace settings. Please try again.',
+      status: 500,
     }
   }
 }

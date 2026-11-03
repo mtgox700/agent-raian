@@ -129,6 +129,28 @@ export const workspaceEndpoints = [
     response: z.object({ ok: z.literal(true), workspace: WorkspaceOnboardingFields }),
   }),
 
+  // app/api/onboarding/complete/route.ts
+  endpoint({
+    id: 'workspace.completeOnboarding',
+    method: 'POST',
+    path: '/api/onboarding/complete',
+    summary: 'First-run setup: create the signed-in user\'s workspace if needed, name it and mark onboarding complete.',
+    auth: 'session',
+    body: z.object({
+      workspaceName: z.string()
+        .min(2, 'Workspace name must be at least 2 characters')
+        .max(50, 'Workspace name must be 50 characters or less')
+        .trim(),
+      targetIndustry: z.string().min(1, 'Please select an industry').optional(),
+      targetCompanySize: CompanySizeCode.optional(),
+      sendingDomain: z.string()
+        .regex(/^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/, 'Please enter a valid domain (e.g. company.com)')
+        .optional()
+        .or(z.literal('')),
+    }),
+    response: z.object({ success: z.literal(true) }),
+  }),
+
   // app/api/workspace/signature/route.ts
   endpoint({
     id: 'workspace.getSignature',

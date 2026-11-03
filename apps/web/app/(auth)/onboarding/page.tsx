@@ -16,7 +16,9 @@ import { brand } from '@/lib/brand'
 import { AuthCard } from '@/components/auth/AuthCard'
 import { AuthInput } from '@/components/auth/AuthInput'
 import { AuthButton } from '@/components/auth/AuthButton'
-import { completeOnboarding } from './actions'
+import { ApiError, createClient } from '@phantera/sdk'
+
+const api = createClient()
 
 // What happens after this screen, said plainly (the old pillars promised
 // "prospects ciblés en temps réel").
@@ -40,13 +42,13 @@ export default function OnboardingPage() {
     }
     setError(null)
     startTransition(async () => {
-      const result = await completeOnboarding({ workspaceName: name })
-      if (result.success) {
+      try {
+        await api.call('workspace.completeOnboarding', { body: { workspaceName: name } })
         // Straight to the dashboard: no auto-prospecting overlay. The user
         // creates their first campaign from there (ICP captured in the wizard).
         router.push('/dashboard')
-      } else {
-        setError(result.error)
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : 'Failed to save workspace settings. Please try again.')
       }
     })
   }

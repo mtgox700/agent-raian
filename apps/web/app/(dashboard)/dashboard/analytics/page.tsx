@@ -1,26 +1,25 @@
-import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import { AnalyticsDashboard } from '@/components/dashboard/analytics/AnalyticsDashboard'
-import { requireAccess } from '@/lib/auth/access'
-import { db } from '@/lib/db'
-import { getAnalyticsReport } from '@/lib/analytics/report'
+import { loadView } from '@/lib/front/server-api'
 
 /**
  * /dashboard/analytics: every figure from aggregated queries over the rows
- * the viewer may see (lib/analytics), filtered by the URL (?p=30d&c=…).
+ * the viewer may see (data: GET /api/views/analytics), filtered by the URL
+ * (?p=30d&c=…). Only single-valued filters count, as before.
  */
 export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const { userId } = await auth()
-  if (!userId) redirect('/sign-in')
+  const params = await searchParams
+  const single = (v: string | string[] | undefined) => (typeof v === 'string' ? v : undefined)
 
-  const workspaceAccess = await requireAccess(userId, 'workspace.read')
-  if (!workspaceAccess.ok) redirect('/onboarding')
+  const view = await loadView('views.analytics', {
+    query: { p: single(params.p), c: single(params.c), vs: single(params.vs) },
+  })
+  if ('redirect' in view) redirect(view.redirect)
 
-  const report = await getAnalyticsReport(db, workspaceAccess.ctx, await searchParams)
   return (
     <DashboardShell>
-      <AnalyticsDashboard report={report} />
+      <AnalyticsDashboard report={view.report} />
     </DashboardShell>
   )
 }

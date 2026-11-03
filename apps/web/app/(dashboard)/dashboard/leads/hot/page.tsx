@@ -1,32 +1,20 @@
-import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { Flame } from 'lucide-react'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import { HotLeadsTable } from '@/components/dashboard/HotLeadsTable'
 import { HotLeadsExportButton } from '@/components/dashboard/HotLeadsExportButton'
 import { FunnelWidget } from '@/components/dashboard/FunnelWidget'
-import { requireAccess } from '@/lib/auth/access'
-import { countHotLeads, getHotLeads } from '@/lib/repositories/leads.repository'
-import { getWorkspaceFunnel } from '@/lib/repositories/campaigns.repository'
+import { loadView } from '@/lib/front/server-api'
 
 interface HotLeadsPageProps {
   searchParams: Promise<{ lid?: string }>
 }
 
+/** /dashboard/leads/hot: leads to answer now (data: GET /api/views/hot-leads). */
 export default async function HotLeadsPage({ searchParams }: HotLeadsPageProps) {
-  const { userId } = await auth()
-  if (!userId) redirect('/sign-in')
-
-  const workspaceAccess = await requireAccess(userId, 'lead.read')
-  if (!workspaceAccess.ok) redirect('/dashboard')
-  const workspace = workspaceAccess.ctx
-
-  const [{ leads }, hotCount, funnel, params] = await Promise.all([
-    getHotLeads(workspace, 50),
-    countHotLeads(workspace),
-    getWorkspaceFunnel(workspace),
-    searchParams,
-  ])
+  const [view, params] = await Promise.all([loadView('views.hotLeads', {}), searchParams])
+  if ('redirectTo' in view) redirect(view.redirectTo)
+  const { leads, hotCount, funnel, plan } = view
 
   // ?lid= from notification click: scroll & highlight that lead card
   const focusId = params.lid ?? undefined
@@ -48,7 +36,7 @@ export default async function HotLeadsPage({ searchParams }: HotLeadsPageProps) 
             </div>
           </div>
           {/* CRM-ready export: the poor-man's CRM bridge until HubSpot sync */}
-          <HotLeadsExportButton leads={leads} plan={workspace.plan} />
+          <HotLeadsExportButton leads={leads} plan={plan} />
         </div>
 
         {/* Funnel */}

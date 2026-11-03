@@ -4,8 +4,9 @@ import { join } from 'node:path'
 
 /**
  * The middleware lets server actions through when signed out (an answer it
- * builds cannot be read by Next): each action must check the session itself.
- * This fails as soon as a 'use server' file exports an action that does not.
+ * builds cannot be read by Next). The front now reaches the back through the
+ * API routes only (packages/contract), which the middleware and each handler
+ * guard: a new 'use server' file would bypass that, so none may come back.
  */
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -20,16 +21,7 @@ describe('server actions', () => {
   const actions = ['app', 'lib', 'components'].flatMap((d) => files(join(root, d)))
     .filter((f) => /^\s*['"]use server['"]/m.test(readFileSync(f, 'utf8').slice(0, 300)))
 
-  it('there are server action files to check', () => {
-    expect(actions.length).toBeGreaterThan(0)
-  })
-
-  it.each(actions.map((f) => [f.slice(root.length + 1), f]))('%s: every exported action checks the session', (_name, file) => {
-    const src = readFileSync(file, 'utf8')
-    const bodies = src.split(/export async function /).slice(1)
-    for (const body of bodies) {
-      const head = body.slice(0, 1200)
-      expect(head, body.slice(0, 40)).toMatch(/await auth\(\)/)
-    }
+  it('none is left: mutations go through the API contract', () => {
+    expect(actions.map((f) => f.slice(root.length + 1))).toEqual([])
   })
 })

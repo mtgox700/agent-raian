@@ -12,6 +12,11 @@ LLM **Ollama Cloud** (FOSS) · **Inngest** (exécution durable) · déployé sur
 
 ## 🚀 Démarrage
 
+**En une commande :** `bash scripts/dev-setup.sh` (Postgres local, `.env.local`, schéma), puis `npm run dev`.
+Contrat d'API front/back : [`packages/contract`](packages/contract/README.md).
+
+À la main :
+
 ```bash
 cd apps/web
 cp env.local.template .env.local     # coller les clés (TIER 1 en premier)

@@ -1,0 +1,19 @@
+# Local Postgres for development: `docker compose up -d db`
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: phantera
+      POSTGRES_PASSWORD: phantera
+      POSTGRES_DB: phantera
+    ports:
+      - "5432:5432"
+    volumes:
+      - phantera-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U phantera"]
+      interval: 2s
+      retries: 30
+
+volumes:
+  phantera-db:

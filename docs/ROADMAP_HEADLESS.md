@@ -125,8 +125,9 @@ But : le nouveau front, construit sur le châssis sans le toucher.
   (seul ajustement de contrat : `analyst.ask` accepte `conversationId: null`, comme le back le faisait déjà)
 - [x] Landing, connexion, inscription, onboarding, invitation, et tout le dashboard : accueil, leads, leads chauds,
   à envoyer, campagnes (liste, assistant, détail), boîte de réception, analytics, analyste, historique, réglages, facturation
-- [ ] Pages publiques secondaires de la v1 non portées : à propos, blog, alternatives, pilote, mentions légales
-- [ ] Événements PostHog non branchés dans la v2 (aucun envoi d'analytics produit)
+- [x] Pages publiques portées : à propos, pilote, confidentialité, CGU, blog (articles, thèmes, RSS), alternatives,
+  404, page d'erreur, robots, sitemap, manifest, llms.txt, images de partage (2026-11-04)
+- [x] PostHog, bandeau de consentement (rien avant accord) et événements produit de la v1 ; composants dupliqués fusionnés
 - [ ] Textes du dashboard v2 dans `lib/copy/*` (repris mot pour mot de la v1), pas encore en documents de contenu
 - [ ] Budgets Lighthouse **non mesurés** : le navigateur du conteneur ne joint pas localhost. Landing vue en rendu hors
   ligne (`scripts/render-static.cjs`) pour les 2 marques ; écrans connectés jamais vus avec une vraie session Clerk

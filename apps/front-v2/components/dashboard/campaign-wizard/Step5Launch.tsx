@@ -15,6 +15,7 @@ import { SenderPicker, useSenders } from '@/components/dashboard/shared/SenderPi
 import { StepHeader } from '@/components/dashboard/campaign-wizard/StepHeader'
 import { step5Copy as t, wizardCopy } from '@/lib/copy/campaign-wizard'
 import { api } from '@/lib/front/api'
+import { track } from '@/lib/analytics/events'
 import { useCampaignWizard } from '@/lib/hooks/use-campaign-wizard'
 import { CAMPAIGN_GOALS, TONES } from '@/lib/types/campaign-wizard'
 
@@ -119,6 +120,8 @@ export function Step5Launch() {
     }
     setIsSaving(false)
     created.current = true
+    // Every creation; the first one is recorded server-side (first_campaign_created).
+    track('campaign_created', { goal: data.step1.goal })
     setCampaignId(result.campaignId)
     setLaunching(true)
   }

@@ -3,12 +3,15 @@ import { dark } from '@clerk/themes'
 import { frFR } from '@clerk/localizations'
 import { themeByKey } from '@phantera/themes'
 import { brand } from '@/lib/brand'
+import { PostHogIdentify } from '@/components/providers/PostHogIdentify'
+import { SessionRefetch } from '@/components/providers/SessionRefetch'
 
 const theme = themeByKey(brand.key)
 
 /**
- * Clerk context, mounted by the (auth) layout only (and later the dashboard),
- * as in body n°1: the landing never ships the Clerk client SDK.
+ * Clerk context, mounted by the (auth) and (dashboard) layouts only, as in
+ * body n°1: the landing never ships the Clerk client SDK. Also the Clerk ->
+ * PostHog identity bridge and the expired-session retry.
  * Widgets follow the brand theme's `auth` palette; layout classes use tokens.
  */
 export function AuthProviders({ children }: { children: React.ReactNode }) {
@@ -41,6 +44,10 @@ export function AuthProviders({ children }: { children: React.ReactNode }) {
         },
       }}
     >
+      {/* Identify authenticated Clerk users in PostHog (needs Clerk context; nothing before consent). */}
+      <PostHogIdentify />
+      {/* An API call made with an expired token is retried after a refresh. */}
+      <SessionRefetch />
       {children}
     </ClerkProvider>
   )

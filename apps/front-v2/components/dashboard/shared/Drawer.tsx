@@ -5,18 +5,20 @@ import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /**
- * A side panel on the native <dialog> (the drawer variant body n°1 had): the
- * browser traps focus, makes the page inert, closes on Escape and gives focus
- * back to the opener. Full height on the right; full width on a phone.
- * Local to the Leads screen: ui/dialog has no drawer variant.
+ * A side panel on the native <dialog> (the drawer variant body n°1 had;
+ * ui/dialog has none): the browser traps focus, makes the page inert, closes
+ * on Escape and gives focus back to the opener. Full height on the right; a
+ * bottom sheet would hide the page on a phone just the same, so it is full
+ * width there. Used by the campaign page, the Leads screen and the inbox.
  */
-export function Sheet({ open, onClose, title, description, closeLabel, footer, children }: {
+export function Drawer({ open, onClose, title, description, closeLabel, footer, size = 'md', children }: {
   open: boolean
   onClose: () => void
   title: React.ReactNode
   description?: React.ReactNode
   closeLabel: string
   footer?: React.ReactNode
+  size?: 'md' | 'lg' | 'xl'
   children?: React.ReactNode
 }) {
   const ref = useRef<HTMLDialogElement>(null)
@@ -38,8 +40,8 @@ export function Sheet({ open, onClose, title, description, closeLabel, footer, c
       onCancel={(e) => { e.preventDefault(); onClose() }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
       className={cn(
-        'fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-dvh w-full max-w-md border-0 border-l border-line bg-raised p-0 text-ink',
-        'backdrop:bg-canvas/70 backdrop:backdrop-blur-[2px]',
+        'm-0 ml-auto h-dvh max-h-dvh w-full border-0 border-l border-line bg-raised p-0 text-ink backdrop:bg-canvas/70 backdrop:backdrop-blur-[2px]',
+        { md: 'sm:max-w-md', lg: 'sm:max-w-xl', xl: 'sm:max-w-2xl' }[size],
       )}
     >
       {open && (
@@ -47,7 +49,7 @@ export function Sheet({ open, onClose, title, description, closeLabel, footer, c
           <header className="flex items-start gap-4 border-b border-line px-5 py-4">
             <div className="min-w-0 flex-1">
               <h2 id={titleId} className="font-display text-lg font-semibold tracking-[-0.02em] text-ink">{title}</h2>
-              {description && <p id={descId} className="mt-1 text-sm leading-relaxed text-quiet">{description}</p>}
+              {description && <div id={descId} className="mt-1 text-sm leading-relaxed text-quiet">{description}</div>}
             </div>
             <button
               type="button"
@@ -59,7 +61,7 @@ export function Sheet({ open, onClose, title, description, closeLabel, footer, c
             </button>
           </header>
           <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-          {footer && <footer className="border-t border-line px-5 py-3">{footer}</footer>}
+          {footer && <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-line px-5 py-3">{footer}</footer>}
         </div>
       )}
     </dialog>

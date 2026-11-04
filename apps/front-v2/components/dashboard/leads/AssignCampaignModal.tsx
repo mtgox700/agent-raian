@@ -11,7 +11,7 @@ import { api } from '@/lib/front/api'
 import { campaignCard } from '@/lib/app-copy'
 import { assignCopy as t } from '@/lib/copy/leads'
 import type { CampaignOption } from '@/lib/front/types-leads'
-import { apiErrorMessage } from './errors'
+import { apiErrorMessage } from '@/components/dashboard/shared/errors'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 

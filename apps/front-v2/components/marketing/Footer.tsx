@@ -1,13 +1,19 @@
 import Link from 'next/link'
 import { Logo } from '@/components/brand/Logo'
 import { Container } from '@/components/ui'
+import { CookieSettingsLink } from '@/components/legal/CookieSettingsLink'
 import { identity, isBuilt, navigation, resolveHref } from '@/lib/content'
 
-/** Footer columns from content, keeping only links whose page exists in body n°2. */
+const linkClass = 'text-ink/80 transition-colors hover:text-accent'
+
+/**
+ * Footer columns from content, keeping only links whose page exists in body n°2.
+ * The column flagged `withCookieSettings` also reopens the cookie banner (as in body n°1).
+ */
 export function Footer() {
   const columns = navigation.footer.columns
     .map((c) => ({ ...c, links: c.links.filter((l) => isBuilt(resolveHref(l.href))) }))
-    .filter((c) => c.links.length > 0)
+    .filter((c) => c.links.length > 0 || c.withCookieSettings)
   return (
     <footer className="border-t border-line py-14">
       <Container className="grid gap-10 md:grid-cols-12">
@@ -20,8 +26,9 @@ export function Footer() {
             <p className="font-mono text-xs uppercase tracking-[0.14em] text-quiet">{c.title}</p>
             <ul className="mt-4 grid gap-3 text-sm">
               {c.links.map((l) => (
-                <li key={l.label}><a href={resolveHref(l.href)} className="text-ink/80 transition-colors hover:text-accent">{l.label}</a></li>
+                <li key={l.label}><a href={resolveHref(l.href)} className={linkClass}>{l.label}</a></li>
               ))}
+              {c.withCookieSettings && <li><CookieSettingsLink className={linkClass} /></li>}
             </ul>
           </nav>
         ))}

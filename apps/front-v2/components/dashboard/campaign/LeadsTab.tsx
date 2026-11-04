@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { Building2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Search, User } from 'lucide-react'
 import { Badge, Button } from '@/components/ui'
-import { LeadDetailDrawer, type DrawerLead } from '@/components/dashboard/campaign/LeadDetailDrawer'
+import { LeadDetailDrawer, type DrawerLead } from '@/components/dashboard/shared/LeadDetailDrawer'
 import { campaignCopy, LEAD_STATUS, SCORE_BADGE, leadsTabCopy as t } from '@/lib/copy/campaign'
 import type { CampaignLeadCounts, CampaignLeadRow } from '@/lib/front/types-campaigns'
 import { cn } from '@/lib/utils'

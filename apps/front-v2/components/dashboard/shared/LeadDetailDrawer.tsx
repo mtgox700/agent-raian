@@ -20,7 +20,7 @@ import type { LeadRow } from '@/lib/front/types-leads'
 import { LeadPhoneTouch } from './LeadPhoneTouch'
 import { LeadScoreBadge } from './LeadScoreBadge'
 import { ScoreGauge } from './ScoreGauge'
-import { Sheet } from './Sheet'
+import { Drawer } from './Drawer'
 import { apiErrorMessage } from './errors'
 
 /** Normalise a possibly-bare URL into something safe for href. */
@@ -80,7 +80,7 @@ export function LeadDetailDrawer({ lead, onClose, onLeadUpdated }: {
     : undefined
 
   return (
-    <Sheet
+    <Drawer
       open={lead !== null}
       onClose={onClose}
       closeLabel={t.close}
@@ -96,7 +96,7 @@ export function LeadDetailDrawer({ lead, onClose, onLeadUpdated }: {
       footer={lead ? <LeadDetailActions key={lead.id} lead={lead} /> : undefined}
     >
       {lead && <LeadDetailContent key={lead.id} lead={lead} onLeadUpdated={onLeadUpdated} />}
-    </Sheet>
+    </Drawer>
   )
 }
 

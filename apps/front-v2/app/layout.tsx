@@ -4,6 +4,10 @@ import './globals.css'
 import './themes.generated.css'
 import { brand } from '@/lib/brand'
 import { navigation } from '@/lib/content'
+import { Suspense } from 'react'
+import { PostHogProvider } from '@/components/providers/PostHogProvider'
+import { PostHogPageView } from '@/components/providers/PostHogPageView'
+import { CookieConsentBanner } from '@/components/legal/CookieConsentBanner'
 
 const syne = localFont({
   src: [
@@ -81,7 +85,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="bg-canvas font-sans text-ink antialiased">
         <a href="#main-content" className="skip-link">{navigation.skipLink}</a>
-        {children}
+        {/* As in body n°1: PostHog wraps every page but loads nothing before
+            consent (components/providers/PostHogProvider). Clerk stays out of
+            the root: AuthProviders mounts it in (auth) and (dashboard) only. */}
+        <PostHogProvider>
+          {/* PostHogPageView reads useSearchParams: it needs a Suspense boundary. */}
+          <Suspense fallback={null}>
+            <PostHogPageView />
+          </Suspense>
+          {children}
+          {/* GDPR cookie consent: first-visit banner, the choice is kept 12 months. */}
+          <CookieConsentBanner />
+        </PostHogProvider>
       </body>
     </html>
   )

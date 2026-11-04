@@ -13,7 +13,7 @@ import { api } from '@/lib/front/api'
 import { downloadCsv, toCsv } from '@/lib/export/csv'
 import { hotLeadsCopy } from '@/lib/copy/hot-leads'
 import type { HotLead, HotLeadsView } from '@/lib/front/types-hot-leads'
-import { track } from '@/components/dashboard/leads/track'
+import { track } from '@/lib/analytics/events'
 
 const t = hotLeadsCopy.export
 

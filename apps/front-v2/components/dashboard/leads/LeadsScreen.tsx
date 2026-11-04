@@ -22,12 +22,12 @@ import { leadsCopy as t, type UpgradeReason } from '@/lib/copy/leads'
 import type { LeadRow, LeadSearchParams, LeadsView } from '@/lib/front/types-leads'
 import { AddLeadModal } from './AddLeadModal'
 import { AssignCampaignModal } from './AssignCampaignModal'
-import { LeadSearchDrawer } from './LeadSearchDrawer'
-import { LeadSearchProgress, consumePipeline, type ProgressState } from './LeadSearchProgress'
+import { LeadSearchDrawer } from '@/components/dashboard/shared/LeadSearchDrawer'
+import { LeadSearchProgress, consumePipeline, type ProgressState } from '@/components/dashboard/shared/LeadSearchProgress'
 import { LeadsTable } from './LeadsTable'
 import { UpgradeModal } from './UpgradeModal'
-import { apiErrorMessage } from './errors'
-import { track } from './track'
+import { apiErrorMessage } from '@/components/dashboard/shared/errors'
+import { track } from '@/lib/analytics/events'
 
 /** The scoring endpoint's limit (leads.score: 100 leads). */
 const MAX_SCORE_BATCH = 100

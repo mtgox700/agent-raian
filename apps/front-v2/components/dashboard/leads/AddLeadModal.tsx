@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { api } from '@/lib/front/api'
 import { addLeadCopy as t } from '@/lib/copy/leads'
 import type { CampaignOption, LeadRow } from '@/lib/front/types-leads'
-import { apiErrorMessage } from './errors'
+import { apiErrorMessage } from '@/components/dashboard/shared/errors'
 
 type ScoreBadge = (typeof t.badges)[number]['value']
 

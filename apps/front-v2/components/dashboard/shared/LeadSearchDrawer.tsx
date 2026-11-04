@@ -16,7 +16,7 @@ import {
 } from '@/lib/types/search-filters'
 import { searchCopy as t } from '@/lib/copy/leads'
 import type { CompanySize, LeadSearchParams, WorkspacePlan } from '@/lib/front/types-leads'
-import { Sheet } from './Sheet'
+import { Drawer } from './Drawer'
 
 const FIELD_LABEL = 'mb-2 block font-mono text-xs text-quiet'
 const SUB_LABEL = 'mb-2 block font-mono text-[11px] text-quiet'
@@ -239,7 +239,7 @@ export function LeadSearchDrawer({ open, workspaceId, plan = 'FREE', onClose, on
   )
 
   return (
-    <Sheet
+    <Drawer
       open={open}
       onClose={onClose}
       closeLabel={t.close}
@@ -476,6 +476,6 @@ export function LeadSearchDrawer({ open, workspaceId, plan = 'FREE', onClose, on
           </ol>
         </div>
       </div>
-    </Sheet>
+    </Drawer>
   )
 }

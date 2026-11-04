@@ -13,6 +13,7 @@ import { ApiError } from '@phantera/sdk'
 import { Badge, Button, buttonVariants } from '@/components/ui'
 import { CLASSIF, replyCopy as t } from '@/lib/copy/inbox'
 import { api } from '@/lib/front/api'
+import { track } from '@/lib/analytics/events'
 import type { InboxReplyRow } from '@/lib/front/types-inbox'
 import { cn } from '@/lib/utils'
 
@@ -44,6 +45,7 @@ function LinkedInReplyBox({ leadId, firstName }: { leadId: string; firstName: st
       await api.call('leads.sendLinkedinMessage', { params: { leadId }, body: { message: message.trim() } })
       setSent(true)
       setMessage('')
+      track('inbox_reply_responded', { classification: 'linkedin_dm' })
     } catch (err) {
       setError(err instanceof ApiError ? (err.body?.error ?? t.sendFailed) : t.network)
     } finally {
@@ -127,7 +129,10 @@ export function ReplyDetail({ reply, onClose, isMobile }: {
       <div className="border-t border-line px-5 py-3">
         {linkedIn && <LinkedInReplyBox leadId={reply.lead.id} firstName={reply.lead.firstName} />}
         <div className="flex flex-wrap items-center gap-2">
-          <a href={buildMailto(reply)} className={buttonVariants({ variant: linkedIn ? 'outline' : 'primary', size: 'sm' })}>
+          <a
+            href={buildMailto(reply)}
+            onClick={() => track('inbox_reply_responded', { classification: reply.classification })}
+            className={buttonVariants({ variant: linkedIn ? 'outline' : 'primary', size: 'sm' })}>
             <Mail className="h-3.5 w-3.5" aria-hidden="true" />
             {t.replyEmail}
           </a>

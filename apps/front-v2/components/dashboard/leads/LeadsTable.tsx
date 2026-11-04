@@ -13,9 +13,9 @@ import { cn } from '@/lib/utils'
 import { LEAD_STATUS_FILTERS, leadMatchesSearch } from '@/lib/leads/lead-status'
 import { LEAD_STATUS, leadStatus, tableCopy as t } from '@/lib/copy/leads'
 import type { LeadRow } from '@/lib/front/types-leads'
-import { LeadDetailDrawer, toHref } from './LeadDetailDrawer'
-import { LeadScoreBadge } from './LeadScoreBadge'
-import { ScoreGauge } from './ScoreGauge'
+import { LeadDetailDrawer, toHref } from '@/components/dashboard/shared/LeadDetailDrawer'
+import { LeadScoreBadge } from '@/components/dashboard/shared/LeadScoreBadge'
+import { ScoreGauge } from '@/components/dashboard/shared/ScoreGauge'
 
 /** A checkbox whose `indeterminate` is set on the DOM node (it has no attribute). */
 function Checkbox({ indeterminate = false, ...rest }: { indeterminate?: boolean } & React.InputHTMLAttributes<HTMLInputElement>) {

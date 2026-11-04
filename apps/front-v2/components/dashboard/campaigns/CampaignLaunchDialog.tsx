@@ -11,6 +11,7 @@ import { Button } from '@/components/ui'
 import { Dialog } from '@/components/ui/dialog'
 import { launchCopy as t } from '@/lib/copy/campaigns'
 import { api } from '@/lib/front/api'
+import { track } from '@/lib/analytics/events'
 import type { SendEstimateData, StepChannelKey } from '@/lib/front/types-campaigns'
 
 interface LaunchResult { queued: number; estimate: SendEstimateData | null }
@@ -54,6 +55,7 @@ export function CampaignLaunchDialog({
     try {
       const res = await api.call('campaigns.launch', { params: { campaignId }, body: { workspaceId } })
       const next = { queued: res.data.queued ?? 0, estimate: res.data.estimate ?? null }
+      track('campaign_launched', { campaignId, leadsCount: next.queued })
       setResult(next)
       onSuccess?.(next)
     } catch (err) {

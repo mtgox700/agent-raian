@@ -9,10 +9,11 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react'
 import { Badge, Button, EmptyState } from '@/components/ui'
-import { Drawer } from '@/components/dashboard/campaign/Drawer'
+import { Drawer } from '@/components/dashboard/shared/Drawer'
 import { ReplyDetail } from '@/components/dashboard/inbox/ReplyDetail'
 import { CLASSIF, inboxCopy as t } from '@/lib/copy/inbox'
 import { api } from '@/lib/front/api'
+import { track } from '@/lib/analytics/events'
 import type { InboxReplyFilter, InboxReplyRow } from '@/lib/front/types-inbox'
 import { INBOX_READ_EVENT } from '@/lib/inbox/events'
 import { cn } from '@/lib/utils'
@@ -76,8 +77,10 @@ export function InboxScreen({ replies, page, totalPages, filter }: {
   // Opened = read. Best effort: never blocks reading; the sidebar badge catches up.
   useEffect(() => {
     if (!selectedId || readIds.has(selectedId)) return
-    if (!replies.some((r) => r.id === selectedId)) return
+    const reply = replies.find((r) => r.id === selectedId)
+    if (!reply) return
     setReadIds((prev) => new Set(prev).add(selectedId))
+    track('inbox_reply_opened', { classification: reply.classification, confidence: reply.confidence })
     api.call('inbox.markRead', { params: { replyId: selectedId } })
       .then(() => window.dispatchEvent(new Event(INBOX_READ_EVENT)))
       .catch(() => undefined)

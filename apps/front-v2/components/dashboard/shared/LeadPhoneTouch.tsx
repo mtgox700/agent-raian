@@ -6,6 +6,7 @@
  * The app drafts the message; the user reviews it and taps "Ouvrir WhatsApp"
  * or "Ouvrir les SMS": the phone app opens with the text prefilled and the
  * user sends it. Nothing is sent automatically to a number that did not opt in.
+ * Shared by the Leads screen and the campaign page (any row with these fields).
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -17,14 +18,16 @@ import { api } from '@/lib/front/api'
 import { formatPhone, normalizePhone, smsLink, whatsappLink } from '@/lib/phone/phone'
 import { TOUCH_MAX_LENGTH, type TouchChannel } from '@/lib/touch/channels'
 import { phoneCopy as t } from '@/lib/copy/leads'
-import type { LeadRow, SentTouch } from '@/lib/front/types-leads'
+import type { SentTouch } from '@/lib/front/types-leads'
 import { PhoneRevealButton } from './PhoneRevealButton'
 import { apiErrorMessage as errorText } from './errors'
 
+/** What the panel reads of a lead: a Leads-screen row or a campaign-page row. */
+export interface PhoneLead { id: string; status: string; phone?: string | null; doNotContact?: boolean }
 
-export function LeadPhoneTouch({ lead, onLeadUpdated }: {
-  lead: LeadRow
-  onLeadUpdated?: (lead: LeadRow) => void
+export function LeadPhoneTouch<L extends PhoneLead>({ lead, onLeadUpdated }: {
+  lead: L
+  onLeadUpdated?: (lead: L) => void
 }) {
   const [phoneInput, setPhoneInput] = useState(lead.phone ? formatPhone(lead.phone) : '')
   const [savingPhone, setSavingPhone] = useState(false)

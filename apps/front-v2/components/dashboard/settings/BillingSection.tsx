@@ -11,6 +11,7 @@ import { ApiError } from '@phantera/sdk'
 import { Badge, Button, Panel, buttonVariants } from '@/components/ui'
 import { billingCopy as t } from '@/lib/copy/settings'
 import { api } from '@/lib/front/api'
+import { track } from '@/lib/analytics/events'
 import type { Plan, SettingsBilling } from '@/lib/front/types-settings'
 import { PLAN_CONFIG } from '@/lib/stripe/plans'
 import { cn } from '@/lib/utils'
@@ -150,6 +151,7 @@ export function BillingSection({
   const handleUpgrade = async (target: CheckoutPlan, billing: BillingCycle) => {
     setLoadingPlan(target)
     setFlash(null)
+    track('checkout_started', { plan: target, billing })
     try {
       const data = await api.call('stripe.checkout', { body: { plan: target, billing, workspaceId } })
       if (!data.url) { setFlash({ type: 'error', message: t.checkoutFailed }); return }

@@ -1,5 +1,5 @@
 import { MessageSquare } from 'lucide-react'
-import { SequenceTimeline } from '@/components/dashboard/campaign/SequenceTimeline'
+import { SequenceTimeline } from '@/components/dashboard/shared/SequenceTimeline'
 import { campaignCopy, resumeCopy as t } from '@/lib/copy/campaign'
 import { formatPercent } from '@/lib/format/percent'
 import type { CampaignDetailData, CampaignStepStats } from '@/lib/front/types-campaigns'

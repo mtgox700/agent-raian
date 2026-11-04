@@ -23,3 +23,7 @@ Copiés depuis `apps/front/public/photos` (couvertures des articles, créditées
 | `public/photos/sequence-calendar.jpg` | Blog, séquence multicanale | Ales Nesetril, [Unsplash](https://unsplash.com/photos/black-android-smartphone-S7sZReI6hJI) | Licence Unsplash |
 | `public/photos/whatsapp-phone.jpg` | Blog, WhatsApp | Olga Nayda, [Unsplash](https://unsplash.com/photos/turned-off-black-and-silver-smartphone-on-brown-wooden-board-cSskyN592g8) | Licence Unsplash |
 | `public/photos/silent-street.jpg` | Blog, campagne muette | Ronan Furuta, [Unsplash](https://unsplash.com/photos/streetlights-illuminate-a-dark-suburban-street-at-night-IUCq3D25hVc) | Licence Unsplash |
+| `public/photos/founder-desk.jpg` | À propos, en-tête | Beth Stevenson, [Unsplash](https://unsplash.com/photos/black-desk-lamp-on-brown-wooden-table-okUB5th8QtQ) | Licence Unsplash |
+| `public/photos/fog.jpg` | À propos, le nom | Chris Barbalis, [Unsplash](https://unsplash.com/photos/green-trees-with-fog-during-daytime-QDPo00WyGXg) | Licence Unsplash |
+| `public/photos/pilot.jpg` | Pilote, en-tête | Marek Levák, [Unsplash](https://unsplash.com/photos/white-cup-of-coffee-on-black-surface-s7nJkRQnUy8) | Licence Unsplash |
+| `public/founder.png` | À propos | portrait d'Ayoub Hammoudi, fondateur | à Ayoub Hammoudi |

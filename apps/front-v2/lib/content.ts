@@ -21,7 +21,7 @@ export const contactHref = `mailto:contact@${identity.domain}`
  * site (blog, legal, pilot...); a link is shown here only once its page is
  * built, so nothing points to a 404.
  */
-const BUILT = ['/', '/sign-in', '/sign-up', '/onboarding', '/dashboard']
+const BUILT = ['/', '/sign-in', '/sign-up', '/onboarding', '/dashboard', '/about', '/pilote', '/legal/privacy', '/legal/terms', '/blog', '/alternative']
 export function isBuilt(href: string): boolean {
   if (href.startsWith('mailto:') || href.startsWith('#') || href.startsWith('/#')) return true
   return BUILT.includes(href.split(/[?#]/)[0])

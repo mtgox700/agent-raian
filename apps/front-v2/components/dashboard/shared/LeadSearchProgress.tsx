@@ -1,5 +1,10 @@
 'use client'
 
+/**
+ * The AI prospecting run (leads.searchStream, SSE), shared by the Leads screen
+ * and the campaign page: the stream reader and the floating progress card.
+ * Each step says what it does, never which provider runs it.
+ */
 import { AlertTriangle, ArrowRight, Check, CheckCircle, Gauge, Loader2, MailCheck, Search, X } from 'lucide-react'
 import { ApiError } from '@phantera/sdk'
 import { Button } from '@/components/ui'
@@ -20,6 +25,10 @@ export interface ProgressState {
   scoreTotal: number
   summary: PipelineSummary | null
   error: string | null
+}
+
+export const INITIAL_PROGRESS: ProgressState = {
+  phase: 'idle', searchFound: 0, searchTotal: 0, enriched: 0, enrichTotal: 0, scored: 0, scoreTotal: 0, summary: null, error: null,
 }
 
 /**

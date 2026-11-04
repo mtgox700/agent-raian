@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import { Building2, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, RefreshCw, Search, User } from 'lucide-react'
 import { Badge, Button } from '@/components/ui'
-import { LeadDetailDrawer, type DrawerLead } from '@/components/dashboard/shared/LeadDetailDrawer'
+import { LeadDetailDrawer } from '@/components/dashboard/shared/LeadDetailDrawer'
 import { campaignCopy, LEAD_STATUS, SCORE_BADGE, leadsTabCopy as t } from '@/lib/copy/campaign'
 import type { CampaignLeadCounts, CampaignLeadRow } from '@/lib/front/types-campaigns'
 import { cn } from '@/lib/utils'
@@ -26,7 +26,7 @@ export function LeadsTab({ leads, leadCounts, isLoading, onFindLeads }: {
   isLoading: boolean
   onFindLeads: () => void
 }) {
-  const [detailLead, setDetailLead] = useState<DrawerLead | null>(null)
+  const [detailLead, setDetailLead] = useState<CampaignLeadRow | null>(null)
   const [pageIndex, setPageIndex] = useState(0)
   // Clamped: a shrinking list never leaves the user on an empty page.
   const pageCount = Math.max(1, Math.ceil(leads.length / PAGE_SIZE))

@@ -87,7 +87,9 @@ server HTML. Focus is always visible (`:focus-visible` accent outline); skip lin
 - **A screen** = `app/(dashboard)/dashboard/<route>/page.tsx` (server): `loadView('views.<id>', input)`,
   apply its redirect if it has one, render `<AppPage title description actions>` around components
   from `components/dashboard/<screen>/`. Pieces used by several screens go in
-  `components/dashboard/shared/` (`CampaignCard`, `InsightsPanel`, `InsightActions`, `SenderPicker`).
+  `components/dashboard/shared/` (`CampaignCard`, `InsightsPanel`, `InsightActions`, `SenderPicker`,
+  `Drawer`, `LeadDetailDrawer`, `LeadPhoneTouch`, `PhoneRevealButton`, `LeadSearchDrawer`,
+  `LeadSearchProgress`, `SequenceTimeline`, `ScoreGauge`, `LeadScoreBadge`, `errors`).
   Add `loading.tsx` with `Skeleton`s in the page's shape; `dashboard/error.tsx` covers errors.
 - **Data**: server via `loadView`; client via `api` from `@/lib/front/api` (`api.call(id, input)`,
   `api.url(id, input)` for an EventSource or a link), `useApi()` from `@/lib/front/use-api` for
@@ -98,3 +100,13 @@ server HTML. Focus is always visible (`:focus-visible` accent outline); skip lin
   `[data-app-shell]` the theme repaints the tokens (Spar-x: dark teal), and `Logo surface="app"`
   picks the logo for that ground.
 - **Motion**: no count-up, no layout animation; spinners and pulses stop under reduced motion.
+
+## Analytics and consent
+
+- Body n°1's wiring: `PostHogProvider` + `PostHogPageView` + `CookieConsentBanner` in the root
+  layout, `PostHogIdentify` + `SessionRefetch` in `AuthProviders`. Nothing from PostHog is
+  downloaded or sent before the visitor accepts (`@/lib/analytics/consent`, key `phantera.consent`,
+  12 months); the footer's « Gérer les cookies » reopens the banner. These are the only client
+  components the public pages ship, and PostHog itself is a dynamic import.
+- Product events go through `track()` from `lib/analytics/events.ts` (body n°1's names and
+  properties). No screen defines its own helper.

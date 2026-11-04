@@ -4,6 +4,9 @@
  * « Prospecter avec IA »: the targeting of a sourcing run (job titles,
  * industry, size, geography, then the filters each offer unlocks). Locked
  * filters say which offer opens them and lead to the upgrade dialog.
+ * From the Leads screen it starts empty; from a campaign page it is
+ * pre-filled with the campaign's targeting and the run is tied to it
+ * (`campaignId`), as body n°1's single drawer did.
  */
 
 import { useState } from 'react'
@@ -146,20 +149,29 @@ type FundingRound = NonNullable<LeadSearchParams['fundingRounds']>[number]
 const toggle = <T,>(list: T[], v: T): T[] => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v])
 const orUndefined = <T,>(list: T[]): T[] | undefined => (list.length > 0 ? list : undefined)
 
-export function LeadSearchDrawer({ open, workspaceId, plan = 'FREE', onClose, onSearch, onUpgrade, isLoading = false }: {
+export function LeadSearchDrawer({
+  open, workspaceId, campaignId, plan = 'FREE', defaultTitles, defaultIndustry, defaultSizes, defaultCountry,
+  onClose, onSearch, onUpgrade, isLoading = false,
+}: {
   open: boolean
   workspaceId: string
+  /** The campaign the found leads join (campaign page only). */
+  campaignId?: string
   plan?: WorkspacePlan
+  defaultTitles?: string[]
+  defaultIndustry?: string
+  defaultSizes?: CompanySize[]
+  defaultCountry?: string
   onClose: () => void
   onSearch: (params: LeadSearchParams) => void
   onUpgrade?: (minPlan: WorkspacePlan) => void
   isLoading?: boolean
 }) {
   // Basic
-  const [selectedTitles, setSelectedTitles] = useState<string[]>([])
-  const [industry, setIndustry] = useState('')
-  const [selectedSizes, setSelectedSizes] = useState<CompanySize[]>([])
-  const [country, setCountry] = useState('France')
+  const [selectedTitles, setSelectedTitles] = useState<string[]>(() => defaultTitles ?? [])
+  const [industry, setIndustry] = useState(() => defaultIndustry ?? '')
+  const [selectedSizes, setSelectedSizes] = useState<CompanySize[]>(() => defaultSizes ?? [])
+  const [country, setCountry] = useState(() => defaultCountry ?? 'France')
   const [limit, setLimit] = useState(25)
   const [titleSearch, setTitleSearch] = useState('')
   // Advanced (Pro)
@@ -200,6 +212,7 @@ export function LeadSearchDrawer({ open, workspaceId, plan = 'FREE', onClose, on
     if (selectedTitles.length === 0) return
     onSearch({
       workspaceId,
+      campaignId,
       jobTitles: selectedTitles,
       industry: industry || undefined,
       companySizes: orUndefined(selectedSizes),
@@ -248,6 +261,13 @@ export function LeadSearchDrawer({ open, workspaceId, plan = 'FREE', onClose, on
       footer={footer}
     >
       <div className="space-y-5">
+        {campaignId && (defaultTitles?.length ?? 0) > 0 && (
+          <p className="flex items-start gap-2 rounded-md border border-line px-3 py-2.5 text-xs text-ink">
+            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+            {t.campaignBanner}
+          </p>
+        )}
+
         {/* Job titles (required) */}
         <div>
           <label htmlFor="lead-search-title" className={FIELD_LABEL}>

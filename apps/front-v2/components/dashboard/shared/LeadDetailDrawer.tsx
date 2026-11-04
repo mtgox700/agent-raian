@@ -1,10 +1,11 @@
 'use client'
 
 /**
- * The full profile of one lead, in a side panel opened from the table:
- * follow-up (status, do-not-contact), WhatsApp & SMS, the AI score with its
- * reasoning, contact channels, company facts and pipeline metadata, and the
- * LinkedIn one-off message. Same data and endpoints as body n°1.
+ * The full profile of one lead, in a side panel opened from the Leads table
+ * or the campaign's Leads tab: follow-up (status, do-not-contact), WhatsApp &
+ * SMS, the AI score with its reasoning, contact channels, company facts and
+ * pipeline metadata, and the LinkedIn one-off message. Same data and
+ * endpoints as body n°1.
  */
 
 import { useState } from 'react'
@@ -31,6 +32,13 @@ function prettyHost(url: string): string {
   return url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/$/, '')
 }
 
+/**
+ * What the panel reads of a lead: a row of the Leads view, or of the campaign
+ * view (whose score badge is a plain string and which has no phone or opt-out
+ * until the panel saves them).
+ */
+export type DetailLead = Omit<LeadRow, 'scoreBadge'> & { scoreBadge: string }
+
 const SECTION_LABEL = 'font-mono text-xs text-quiet'
 const CHANNEL_ROW = 'flex items-center justify-between gap-2 rounded-md border border-line bg-canvas px-3 py-2'
 
@@ -39,7 +47,9 @@ function CopyButton({ value }: { value: string }) {
   return (
     <button
       type="button"
-      onClick={() => {
+      onClick={(e) => {
+        // The click stays on the button (as the campaign page's copy did).
+        e.stopPropagation()
         void navigator.clipboard.writeText(value).then(() => {
           setCopied(true)
           setTimeout(() => setCopied(false), 1400)
@@ -68,11 +78,11 @@ function InfoRow({ icon: Icon, label, children }: { icon: React.ElementType; lab
   )
 }
 
-export function LeadDetailDrawer({ lead, onClose, onLeadUpdated }: {
-  lead: LeadRow | null
+export function LeadDetailDrawer<L extends DetailLead>({ lead, onClose, onLeadUpdated }: {
+  lead: L | null
   onClose: () => void
   /** Called with the lead as saved after a status, opt-out or phone change. */
-  onLeadUpdated?: (lead: LeadRow) => void
+  onLeadUpdated?: (lead: L) => void
 }) {
   const initials = lead ? `${lead.firstName[0] ?? ''}${lead.lastName[0] ?? ''}`.toUpperCase() : ''
   const subtitle = lead
@@ -104,7 +114,7 @@ const EDITABLE_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'lost']
 type EditableStatus = (typeof EDITABLE_STATUSES)[number]
 
 /** Status and "ne plus contacter" for one lead (PATCH leads.updateStatus). */
-function LeadFollowUp({ lead, onLeadUpdated }: { lead: LeadRow; onLeadUpdated?: (lead: LeadRow) => void }) {
+function LeadFollowUp<L extends DetailLead>({ lead, onLeadUpdated }: { lead: L; onLeadUpdated?: (lead: L) => void }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const current = lead.status === 'queued' ? 'new' : lead.status
@@ -159,7 +169,7 @@ function LeadFollowUp({ lead, onLeadUpdated }: { lead: LeadRow; onLeadUpdated?: 
   )
 }
 
-function LeadDetailContent({ lead, onLeadUpdated }: { lead: LeadRow; onLeadUpdated?: (lead: LeadRow) => void }) {
+function LeadDetailContent<L extends DetailLead>({ lead, onLeadUpdated }: { lead: L; onLeadUpdated?: (lead: L) => void }) {
   const status = leadStatus(lead.status)
   const hasScore = lead.scoreBadge !== 'UNSCORED' && lead.aiScore != null
   const enrich = lead.enrichment
@@ -275,7 +285,7 @@ function LeadDetailContent({ lead, onLeadUpdated }: { lead: LeadRow; onLeadUpdat
   )
 }
 
-function LeadDetailActions({ lead }: { lead: LeadRow }) {
+function LeadDetailActions({ lead }: { lead: DetailLead }) {
   return (
     <div className="w-full">
       <LinkedInComposer lead={lead} />
@@ -306,7 +316,7 @@ function LeadDetailActions({ lead }: { lead: LeadRow }) {
  * server falls back to a connection invitation when the lead is not a
  * connection yet).
  */
-function LinkedInComposer({ lead }: { lead: LeadRow }) {
+function LinkedInComposer({ lead }: { lead: DetailLead }) {
   const [open, setOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)

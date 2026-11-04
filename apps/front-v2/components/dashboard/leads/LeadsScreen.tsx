@@ -23,7 +23,7 @@ import type { LeadRow, LeadSearchParams, LeadsView } from '@/lib/front/types-lea
 import { AddLeadModal } from './AddLeadModal'
 import { AssignCampaignModal } from './AssignCampaignModal'
 import { LeadSearchDrawer } from '@/components/dashboard/shared/LeadSearchDrawer'
-import { LeadSearchProgress, consumePipeline, type ProgressState } from '@/components/dashboard/shared/LeadSearchProgress'
+import { INITIAL_PROGRESS, LeadSearchProgress, consumePipeline, type ProgressState } from '@/components/dashboard/shared/LeadSearchProgress'
 import { LeadsTable } from './LeadsTable'
 import { UpgradeModal } from './UpgradeModal'
 import { apiErrorMessage } from '@/components/dashboard/shared/errors'
@@ -33,10 +33,6 @@ import { track } from '@/lib/analytics/events'
 const MAX_SCORE_BATCH = 100
 /** The e-mail check endpoint's limit (leads.enrichBatch: 25 leads). */
 const MAX_ENRICH_BATCH = 25
-
-const INITIAL_PROGRESS: ProgressState = {
-  phase: 'idle', searchFound: 0, searchTotal: 0, enriched: 0, enrichTotal: 0, scored: 0, scoreTotal: 0, summary: null, error: null,
-}
 
 const BULK_BUTTON = 'rounded-md border border-line px-3 py-1.5 text-xs text-ink transition-colors duration-200 ease-signal hover:border-accent disabled:opacity-50'
 

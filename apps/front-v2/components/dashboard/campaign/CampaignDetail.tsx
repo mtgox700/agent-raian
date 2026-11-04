@@ -15,7 +15,7 @@ import { Button } from '@/components/ui'
 import { InsightsPanel } from '@/components/dashboard/shared/InsightsPanel'
 import { CampaignSenderCard } from '@/components/dashboard/campaign/CampaignSenderCard'
 import { LeadSearchDrawer } from '@/components/dashboard/shared/LeadSearchDrawer'
-import { INITIAL_PROGRESS, LeadSearchProgress, usePipelineStream, type ProgressState } from '@/components/dashboard/shared/LeadSearchProgress'
+import { INITIAL_PROGRESS, LeadSearchProgress, consumePipeline, type ProgressState } from '@/components/dashboard/shared/LeadSearchProgress'
 import { LeadsTab } from '@/components/dashboard/campaign/LeadsTab'
 import { ResumeTab, messagesBreakdown } from '@/components/dashboard/campaign/ResumeTab'
 import { SendStatusBanner } from '@/components/dashboard/campaign/SendStatusBanner'
@@ -154,8 +154,6 @@ export function CampaignDetail({
     }
   }
 
-  const { consume } = usePipelineStream()
-
   useEffect(() => { setUnverifiedCount(initialUnverifiedCount) }, [initialUnverifiedCount])
 
   const liveLeadCounts = mergeLeadCounts(initialLeadCounts, computeLeadCounts(liveLeads))
@@ -211,7 +209,7 @@ export function CampaignDetail({
     setProgress({ ...INITIAL_PROGRESS, phase: 'search', searchTotal: params.limit ?? 25 })
 
     try {
-      await consume(params, (event) => {
+      await consumePipeline(params, (event) => {
         setProgress((prev) => {
           switch (event.type) {
             case 'search_start': return { ...prev, phase: 'search', searchTotal: event.total }
@@ -239,7 +237,7 @@ export function CampaignDetail({
     } catch (err) {
       if (err instanceof Error && err.name !== 'AbortError') setProgress((prev) => ({ ...prev, phase: 'error', error: err.message }))
     }
-  }, [consume])
+  }, [])
 
   const status = campaign.status.toLowerCase()
   const breakdown = messagesBreakdown(campaign.messagesByChannel)
